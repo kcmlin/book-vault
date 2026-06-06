@@ -1,0 +1,2063 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Book Vault | Collector’s Edition</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <!-- Google Fonts for Editorial Aesthetic -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            serif: ['Playfair Display', 'serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Premium book spine textures */
+    .bg-noise {
+      background-image: radial-gradient(rgba(255,255,255,0.15) 1px, transparent 0), radial-gradient(rgba(0,0,0,0.3) 1px, transparent 0);
+      background-size: 8px 8px;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #020617;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-amber-500 selection:text-slate-900 overflow-y-scroll custom-scrollbar">
+
+  <!-- TOASTS CONTAINER -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full"></div>
+
+  <!-- NAVIGATION & BRAND HEADER -->
+  <header class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-gradient-to-tr from-amber-600 to-amber-400 rounded-xl flex items-center justify-center shadow-lg shadow-amber-600/20 text-slate-950">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+            The Book Vault <span class="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/25 px-2 py-0.5 rounded-full font-normal">Collector’s Edition v5.4</span>
+          </h1>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="flex items-center gap-3">
+        <button onclick="toggleResetDialog(true)" class="text-xs text-slate-400 hover:text-rose-400 border border-slate-800 hover:border-rose-950 px-3 py-1.5 rounded-xl transition-all font-medium">
+          Reset Archive Data
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN WRAPPER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <!-- ============================================= -->
+    <!-- REAL-TIME CLOUD LINK GENERATOR AND STATUS -->
+    <!-- ============================================= -->
+    <div class="bg-gradient-to-r from-amber-950/40 to-slate-900/50 p-5 rounded-2xl border border-amber-500/20 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-start gap-3">
+        <div class="p-2 bg-amber-500/10 rounded-xl border border-amber-500/25 text-amber-400 shrink-0">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+          </svg>
+        </div>
+        <div>
+          <h4 class="font-bold text-white text-sm flex items-center gap-2">
+            Cross-Device Shared Link
+            <span id="cloudStatusBadge" class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-850 text-slate-400">
+              Initializing...
+            </span>
+          </h4>
+          <p class="text-xs text-slate-400 mt-0.5 leading-relaxed">
+            Bookmark this unique link or open it on other devices. Any edits made will sync instantly.
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 w-full md:w-auto md:max-w-md flex-1">
+        <input 
+          type="text" 
+          id="shareableLinkInput" 
+          readonly 
+          onclick="this.select()"
+          class="flex-1 bg-slate-950 border border-slate-800 rounded-xl py-2 px-3 text-xs text-slate-300 font-mono focus:outline-none focus:border-amber-500/50"
+        />
+        <button 
+          onclick="copyShareableLink()" 
+          class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition-all shadow-md shrink-0 flex items-center gap-1"
+        >
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+          </svg>
+          Copy Link
+        </button>
+      </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- STATISTICS QUICK COUNTERS -->
+    <!-- ============================================= -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div class="bg-slate-900/50 p-5 rounded-2xl border border-slate-800/80 hover:border-slate-700/80 transition-all flex flex-col justify-between">
+        <span class="text-xs text-slate-400 uppercase tracking-widest font-semibold">Total Collection</span>
+        <span id="statTotalBooks" class="text-4xl font-extrabold text-white mt-2">0</span>
+      </div>
+      <div class="bg-slate-900/50 p-5 rounded-2xl border border-slate-800/80 hover:border-slate-700/80 transition-all flex flex-col justify-between">
+        <span class="text-xs text-amber-400 uppercase tracking-widest font-semibold">Rare Artifacts</span>
+        <span id="statRareBooks" class="text-4xl font-extrabold text-amber-400 mt-2">0</span>
+      </div>
+      <div class="bg-slate-900/50 p-5 rounded-2xl border border-slate-800/80 hover:border-slate-700/80 transition-all flex flex-col justify-between">
+        <span class="text-xs text-emerald-400 uppercase tracking-widest font-semibold">First Printing</span>
+        <span id="statFirstPrinting" class="text-4xl font-extrabold text-emerald-400 mt-2">0</span>
+      </div>
+      <div class="bg-slate-900/50 p-5 rounded-2xl border border-slate-800/80 hover:border-slate-700/80 transition-all flex flex-col justify-between">
+        <span class="text-xs text-sky-400 uppercase tracking-widest font-semibold">First Edition</span>
+        <span id="statFirstEdition" class="text-4xl font-extrabold text-sky-400 mt-2">0</span>
+      </div>
+      <div class="bg-slate-900/50 p-5 rounded-2xl border border-slate-800/80 hover:border-slate-700/80 transition-all flex flex-col justify-between">
+        <span class="text-xs text-rose-400 uppercase tracking-widest font-semibold">Ex-Library</span>
+        <span id="statExLibrary" class="text-4xl font-extrabold text-rose-400 mt-2">0</span>
+      </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- CATALOG NEW VOLUME CARD (HOMEPAGE TOP) -->
+    <!-- ============================================= -->
+    <div class="bg-slate-900/30 rounded-2xl border border-slate-800 p-6 md:p-8 space-y-6">
+      <div>
+        <h2 class="text-2xl font-extrabold text-white flex items-center gap-2.5 font-serif">
+          <span class="text-amber-500">⚜</span> Catalog New Book Volume
+        </h2>
+        <p class="text-slate-400 text-sm mt-1">
+          Input book metadata manually or use the native voice capture engine next to the text fields.
+        </p>
+      </div>
+
+      <form id="addBookForm" onsubmit="handleFormSubmit(event)" class="space-y-6">
+        
+        <!-- Row 1: Book Title and Author First/Last Name -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Book Title -->
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                Book Title <span class="text-rose-500">*</span>
+              </label>
+              <span id="listening-title" class="hidden text-xs text-rose-400 animate-pulse flex items-center gap-1 font-semibold">
+                <span class="w-1.5 h-1.5 bg-rose-500 rounded-full animate-ping"></span> Listening...
+              </span>
+            </div>
+            <div class="relative">
+              <input
+                type="text"
+                id="formTitle"
+                required
+                placeholder="e.g. Beyond Good and Evil"
+                class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 pl-4 pr-12 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-slate-100 placeholder-slate-600 transition-all font-medium text-sm"
+              />
+              <button
+                type="button"
+                onclick="startVoiceCapture('formTitle', 'listening-title')"
+                class="absolute right-2 top-2 p-1 rounded-lg bg-slate-800 text-amber-500 hover:bg-slate-700 hover:text-amber-400 transition-all"
+                title="Dictate book title"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Author First Name -->
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                Author First Name <span class="text-rose-500">*</span>
+              </label>
+              <span id="listening-authorFirst" class="hidden text-xs text-rose-400 animate-pulse flex items-center gap-1 font-semibold">
+                <span class="w-1.5 h-1.5 bg-rose-500 rounded-full animate-ping"></span> Listening...
+              </span>
+            </div>
+            <div class="relative">
+              <input
+                type="text"
+                id="formAuthorFirst"
+                required
+                placeholder="e.g. Friedrich"
+                class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 pl-4 pr-12 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-slate-100 placeholder-slate-600 transition-all font-medium text-sm"
+              />
+              <button
+                type="button"
+                onclick="startVoiceCapture('formAuthorFirst', 'listening-authorFirst')"
+                class="absolute right-2 top-2 p-1 rounded-lg bg-slate-800 text-amber-500 hover:bg-slate-700 hover:text-amber-400 transition-all"
+                title="Dictate first name"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Author Last Name -->
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                Author Last Name <span class="text-rose-500">*</span>
+              </label>
+              <span id="listening-authorLast" class="hidden text-xs text-rose-400 animate-pulse flex items-center gap-1 font-semibold">
+                <span class="w-1.5 h-1.5 bg-rose-500 rounded-full animate-ping"></span> Listening...
+              </span>
+            </div>
+            <div class="relative">
+              <input
+                type="text"
+                id="formAuthorLast"
+                required
+                placeholder="e.g. Nietzsche"
+                class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 pl-4 pr-12 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-slate-100 placeholder-slate-600 transition-all font-medium text-sm"
+              />
+              <button
+                type="button"
+                onclick="startVoiceCapture('formAuthorLast', 'listening-authorLast')"
+                class="absolute right-2 top-2 p-1 rounded-lg bg-slate-800 text-amber-500 hover:bg-slate-700 hover:text-amber-400 transition-all"
+                title="Dictate last name"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 2: Genre, Printing, Price Paid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Genre Dropdown -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Genre</label>
+            <select id="formGenre" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 px-4 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-slate-100 transition-all cursor-pointer font-medium text-sm">
+              <!-- Rendered dynamically -->
+            </select>
+          </div>
+
+          <!-- Printing Numeric -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Printing (Numeric Number)</label>
+            <input
+              type="number"
+              id="formPrinting"
+              min="1"
+              value="1"
+              required
+              class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 px-4 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-slate-100 font-medium text-sm"
+            />
+          </div>
+
+          <!-- Price Paid -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Price Paid ($)</label>
+            <input
+              type="number"
+              id="formPricePaid"
+              min="0"
+              step="0.01"
+              value="0.00"
+              required
+              class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 px-4 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-slate-100 font-medium text-sm"
+            />
+          </div>
+        </div>
+
+        <!-- Row 3: Binding, Collectibility, Anthology, and Import status toggles -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Binding Type -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Binding Type</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" onclick="setFormBinding('paperback')" id="btnBindPaperback" class="py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all">
+                Paperback
+              </button>
+              <button type="button" onclick="setFormBinding('hardcover')" id="btnBindHardcover" class="py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all">
+                Hard Cover
+              </button>
+            </div>
+          </div>
+
+          <!-- Collectibility Status -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Collectibility Status</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" onclick="setFormCollectibility('not-rare')" id="btnCollectibilityStandard" class="py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all">
+                Standard Edition
+              </button>
+              <button type="button" onclick="setFormCollectibility('rare')" id="btnCollectibilityRare" class="py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all">
+                Rare Archive
+              </button>
+            </div>
+          </div>
+
+          <!-- Anthology -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Anthology? (Collection)</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" onclick="setFormAnthology('no')" id="btnAnthologyNo" class="py-2.5 px-4 rounded-xl font-bold text-xs border bg-sky-500/10 border-sky-500/80 text-sky-400 transition-all">
+                Single Work
+              </button>
+              <button type="button" onclick="setFormAnthology('yes')" id="btnAnthologyYes" class="py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all">
+                Anthology
+              </button>
+            </div>
+          </div>
+
+          <!-- Imported? (Collection) -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Imported? (Collection)</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" onclick="setFormImportStatus('manual')" id="btnImportManual" class="py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all">
+                Not Imported
+              </button>
+              <button type="button" onclick="setFormImportStatus('imported')" id="btnImportImported" class="py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all">
+                Imported
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 4: Edition, Signed by Author, Library Status -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Edition toggle -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Edition</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" onclick="setFormEdition('first')" id="btnEditionFirst" class="py-2.5 px-4 rounded-xl font-bold text-xs border transition-all">
+                First Edition
+              </button>
+              <button type="button" onclick="setFormEdition('not-first')" id="btnEditionNotFirst" class="py-2.5 px-4 rounded-xl font-bold text-xs border transition-all">
+                Not First Edition
+              </button>
+            </div>
+          </div>
+
+          <!-- Signed Status -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Signed by Author</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" onclick="setFormSigned('signed')" id="btnSignedYes" class="py-2.5 px-4 rounded-xl font-bold text-xs border transition-all">
+                Signed
+              </button>
+              <button type="button" onclick="setFormSigned('not-signed')" id="btnSignedNo" class="py-2.5 px-4 rounded-xl font-bold text-xs border transition-all">
+                Not Signed
+              </button>
+            </div>
+          </div>
+
+          <!-- Library Status -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Library Status</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" onclick="setFormLibraryStatus('ex-library')" id="btnLibEx" class="py-2.5 px-4 rounded-xl font-bold text-xs border transition-all">
+                Ex-library
+              </button>
+              <button type="button" onclick="setFormLibraryStatus('not-ex-library')" id="btnLibNotEx" class="py-2.5 px-4 rounded-xl font-bold text-xs border transition-all">
+                Not Ex-library
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Submission Row -->
+        <div class="pt-4 border-t border-slate-800/80 flex items-center justify-between">
+          <span class="text-xs text-slate-500">
+            * Marked fields are required for catalog registry.
+          </span>
+          <button type="submit" class="py-2.5 px-8 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold rounded-xl transition-all text-xs shadow-xl flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+            Save to Library Shelf
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- SEARCH AND FILTER INTERFACE -->
+    <!-- ============================================= -->
+    <div class="bg-slate-900/30 p-6 rounded-2xl border border-slate-800/60 space-y-4">
+      <div class="flex flex-col md:flex-row items-stretch justify-between gap-4">
+        
+        <!-- Unified Query Search bar -->
+        <div class="flex-1 relative">
+          <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+            <svg class="w-5 h-5 text-amber-500/80" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            id="searchQuery"
+            oninput="handleFilterChange()"
+            placeholder="Search catalog by book name or author..."
+            class="w-full pl-10 pr-12 py-3 bg-slate-950/80 border border-slate-800 rounded-xl focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-slate-100 placeholder-slate-500 transition-all"
+          />
+          <button 
+            onclick="document.getElementById('searchQuery').value = ''; handleFilterChange();"
+            class="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-white text-xs font-semibold px-2"
+          >
+            Clear
+          </button>
+        </div>
+
+        <!-- Sort Selection -->
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-slate-400 font-medium whitespace-nowrap">Sort By</span>
+          <select
+            id="sortBy"
+            onchange="handleFilterChange()"
+            class="bg-slate-950/80 border border-slate-800 text-sm rounded-xl px-4 py-3 text-slate-300 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none cursor-pointer"
+          >
+            <option value="newest">Recently Logged</option>
+            <option value="oldest">Oldest Logged</option>
+            <option value="title-asc">Title (A-Z)</option>
+            <option value="title-desc">Title (Z-A)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Filter Grid (Expanded with new parameters) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2">
+        <!-- Genre Filter -->
+        <div>
+          <label class="block text-xs text-slate-400 mb-1 font-medium">Genre</label>
+          <select id="filterGenre" onchange="handleFilterChange()" class="w-full bg-slate-950/80 border border-slate-800 text-[11px] rounded-xl px-2.5 py-2 text-slate-300 focus:border-amber-500 outline-none">
+            <option value="All">All Genres</option>
+            <!-- Populated dynamically with Science Fiction pre-selected on load -->
+          </select>
+        </div>
+
+        <!-- First Edition? Filter -->
+        <div>
+          <label class="block text-xs text-slate-400 mb-1 font-medium">First Edition?</label>
+          <select id="filterEdition" onchange="handleFilterChange()" class="w-full bg-slate-950/80 border border-slate-800 text-[11px] rounded-xl px-2.5 py-2 text-slate-300 focus:border-amber-500 outline-none">
+            <option value="All">All Editions</option>
+            <option value="first">First Edition</option>
+            <option value="not-first">Not First</option>
+          </select>
+        </div>
+
+        <!-- Signed? Filter -->
+        <div>
+          <label class="block text-xs text-slate-400 mb-1 font-medium">Signed?</label>
+          <select id="filterSigned" onchange="handleFilterChange()" class="w-full bg-slate-950/80 border border-slate-800 text-[11px] rounded-xl px-2.5 py-2 text-slate-300 focus:border-amber-500 outline-none">
+            <option value="All">All Signed</option>
+            <option value="signed">Signed</option>
+            <option value="not-signed">Not Signed</option>
+          </select>
+        </div>
+
+        <!-- Ex-library? Filter -->
+        <div>
+          <label class="block text-xs text-slate-400 mb-1 font-medium">Ex-library?</label>
+          <select id="filterLibraryStatus" onchange="handleFilterChange()" class="w-full bg-slate-950/80 border border-slate-800 text-[11px] rounded-xl px-2.5 py-2 text-slate-300 focus:border-amber-500 outline-none">
+            <option value="All">All Statuses</option>
+            <option value="ex-library">Ex-library</option>
+            <option value="not-ex-library">Not Ex-library</option>
+          </select>
+        </div>
+
+        <!-- Binding Type Filter -->
+        <div>
+          <label class="block text-xs text-slate-400 mb-1 font-medium">Binding Type</label>
+          <select id="filterType" onchange="handleFilterChange()" class="w-full bg-slate-950/80 border border-slate-800 text-[11px] rounded-xl px-2.5 py-2 text-slate-300 focus:border-amber-500 outline-none">
+            <option value="All">All Bindings</option>
+            <option value="hardcover">Hard Cover</option>
+            <option value="paperback">Paperback</option>
+          </select>
+        </div>
+
+        <!-- Collectibility Filter -->
+        <div>
+          <label class="block text-xs text-slate-400 mb-1 font-medium">Collectibility</label>
+          <select id="filterCollectibility" onchange="handleFilterChange()" class="w-full bg-slate-950/80 border border-slate-800 text-[11px] rounded-xl px-2.5 py-2 text-slate-300 focus:border-amber-500 outline-none">
+            <option value="All">All Collectibles</option>
+            <option value="rare">Rare Volumes</option>
+            <option value="not-rare">Standard Edition</option>
+          </select>
+        </div>
+
+        <!-- Anthology Edition Filter -->
+        <div>
+          <label class="block text-xs text-slate-400 mb-1 font-medium">Anthology</label>
+          <select id="filterAnthology" onchange="handleFilterChange()" class="w-full bg-slate-950/80 border border-slate-800 text-[11px] rounded-xl px-2.5 py-2 text-slate-300 focus:border-amber-500 outline-none">
+            <option value="All">All Editions</option>
+            <option value="yes">Is Anthology</option>
+            <option value="no">Single Work</option>
+          </select>
+        </div>
+
+        <!-- Imported Edition Filter -->
+        <div>
+          <label class="block text-xs text-slate-400 mb-1 font-medium">Imported</label>
+          <select id="filterImportStatus" onchange="handleFilterChange()" class="w-full bg-slate-950/80 border border-slate-800 text-[11px] rounded-xl px-2.5 py-2 text-slate-300 focus:border-amber-500 outline-none">
+            <option value="All">All Imports</option>
+            <option value="imported">Imported</option>
+            <option value="manual">Not Imported</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- LOGGED BOOKS TABLE (HOMEPAGE BOTTOM) -->
+    <!-- ============================================= -->
+    <div class="bg-slate-900/40 rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
+      <div class="px-6 py-4 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25a2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" /></svg>
+          Logged Books Archive
+        </h3>
+        <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+          <span id="filteredCountBadge" class="text-xs bg-slate-800 text-slate-300 px-2.5 py-1.5 rounded-full font-semibold border border-slate-700">0 volumes matched</span>
+          
+          <div class="flex items-center gap-2">
+            <!-- Hidden Import Trigger -->
+            <input type="file" id="csvImportInput" accept=".csv" onchange="handleCSVImport(event)" class="hidden" />
+            <button onclick="document.getElementById('csvImportInput').click()" class="text-xs text-slate-300 border border-slate-700 hover:border-slate-500 hover:text-white font-bold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 shadow-lg">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 015.25 21h13.5A2.25 2.25 0 0121 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+              </svg>
+              <span>Import CSV</span>
+            </button>
+
+            <button onclick="exportBooksToCSV()" class="text-xs text-slate-950 bg-amber-500 hover:bg-amber-400 font-bold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 shadow-lg">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 015.25 21h13.5A2.25 2.25 0 0121 18.75V16.5m-13.5-2.25L12 10.5m0 0l4.5 4.5M12 10.5v10.5" />
+              </svg>
+              <span>Export CSV</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto custom-scrollbar">
+        <table class="w-full text-left text-xs text-slate-300 border-collapse border-b border-slate-800">
+          <thead class="bg-slate-950 text-slate-400 uppercase tracking-wider font-semibold">
+            <tr>
+              <th class="py-3.5 px-6">Book Title</th>
+              <th class="py-3.5 px-6">Author</th>
+              <th class="py-3.5 px-6">Genre</th>
+              <th class="py-3.5 px-6">Binding Type</th>
+              <th class="py-3.5 px-6">Collectibility</th>
+              <th class="py-3.5 px-6">First Edition?</th>
+              <th class="py-3.5 px-6">Signed?</th>
+              <th class="py-3.5 px-6">Ex-library?</th>
+              <th class="py-3.5 px-6">Price Paid</th>
+              <th class="py-3.5 px-6 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="booksTableBody" class="divide-y divide-slate-800/60 bg-slate-900/10">
+            <!-- Table rows populated dynamically -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- No Books Found Table Placeholder -->
+      <div id="emptyTableState" class="hidden py-12 text-center space-y-3">
+        <p class="text-slate-400 text-sm">No logged volumes match your search parameters.</p>
+        <button onclick="clearSearchFilters()" class="text-xs font-bold text-amber-500 hover:text-amber-400 underline transition-all">Clear Search Filters</button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- METADATA DETAIL DISPLAY MODAL -->
+  <div id="selectedBookModal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full overflow-hidden shadow-2xl flex flex-col">
+      
+      <!-- Top Dynamic Stylized Card mimicking leather binding spine -->
+      <div id="modalSpineHeader" class="p-8 border-b border-slate-800 text-center space-y-3 relative">
+        <div class="absolute top-4 right-4">
+          <button onclick="closeBookModal()" class="p-1 rounded-lg bg-black/20 hover:bg-black/40 text-slate-400 hover:text-white transition-all text-xs font-semibold px-2">
+            ✕ Close
+          </button>
+        </div>
+        <span id="modalGenreLabel" class="text-[9px] font-extrabold tracking-widest uppercase bg-amber-500/20 border border-amber-400/30 text-amber-400 px-2.5 py-1 rounded-full inline-block backdrop-blur-sm">
+          GENRE
+        </span>
+        <h3 id="modalTitle" class="text-2xl font-bold text-white tracking-tight font-serif leading-tight">
+          Title of Book
+        </h3>
+        <p id="modalAuthor" class="text-xs text-amber-500 font-medium uppercase tracking-wider">
+          By Author Name
+        </p>
+      </div>
+
+      <!-- Core Metadata Rows -->
+      <div class="p-6 space-y-6">
+        <div class="space-y-4">
+          <h4 class="text-xs text-slate-500 font-bold uppercase tracking-wider">Registration Profile Parameters</h4>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between text-sm py-2 border-b border-slate-800/80">
+              <span class="text-slate-400">Binding Finish</span>
+              <span id="modalBinding" class="text-white font-bold capitalize">-</span>
+            </div>
+            <div class="flex items-center justify-between text-sm py-2 border-b border-slate-800/80">
+              <span class="text-slate-400">Collectibility</span>
+              <span id="modalCollectibilityBadge" class="font-bold flex items-center gap-1.5">-</span>
+            </div>
+            <div class="flex items-center justify-between text-sm py-2 border-b border-slate-800/80">
+              <span class="text-slate-400">First Edition?</span>
+              <span id="modalEdition" class="text-white font-bold capitalize">-</span>
+            </div>
+            <div class="flex items-center justify-between text-sm py-2 border-b border-slate-800/80">
+              <span class="text-slate-400">Printing Number</span>
+              <span id="modalPrinting" class="text-white font-bold">-</span>
+            </div>
+            <div class="flex items-center justify-between text-sm py-2 border-b border-slate-800/80">
+              <span class="text-slate-400">Signed?</span>
+              <span id="modalSigned" class="text-white font-bold capitalize">-</span>
+            </div>
+            <div class="flex items-center justify-between text-sm py-2 border-b border-slate-800/80">
+              <span class="text-slate-400">Ex-library?</span>
+              <span id="modalLibraryStatus" class="text-white font-bold capitalize">-</span>
+            </div>
+            <div class="flex items-center justify-between text-sm py-2 border-b border-slate-800/80">
+              <span class="text-slate-400">Price Paid</span>
+              <span id="modalPricePaid" class="text-emerald-400 font-bold">-</span>
+            </div>
+            <div class="flex items-center justify-between text-sm py-2 border-b border-slate-800/80">
+              <span class="text-slate-400">Anthology Volume</span>
+              <span id="modalAnthology" class="text-white font-bold capitalize">-</span>
+            </div>
+            <div class="flex items-center justify-between text-sm py-2 border-b border-slate-800/80">
+              <span class="text-slate-400">Imported?</span>
+              <span id="modalImportStatus" class="text-white font-bold capitalize">-</span>
+            </div>
+            <div class="flex items-center justify-between text-sm py-2 border-b border-slate-800/80">
+              <span class="text-slate-400">Date Logged</span>
+              <span id="modalDate" class="text-slate-300 font-medium">-</span>
+            </div>
+            <div class="flex items-center justify-between text-sm py-2 border-b border-slate-800/80 font-mono text-xs">
+              <span class="text-slate-400">System ID</span>
+              <span id="modalId" class="text-slate-500">-</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Row -->
+        <div class="pt-4 border-t border-slate-800/80 flex gap-2">
+          <button id="modalBtnEdit" class="flex-1 py-3 px-4 bg-slate-850 hover:bg-slate-800 border border-slate-700/80 text-amber-400 font-bold rounded-xl transition-all text-xs flex items-center justify-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+            Edit Volume
+          </button>
+          <button id="modalBtnDelete" class="flex-1 py-3 px-4 bg-rose-950/40 hover:bg-rose-900 border border-rose-500/35 text-rose-200 font-bold rounded-xl transition-all text-xs flex items-center justify-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+            Remove Volume
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- EDIT BOOK MODAL -->
+  <div id="editBookModal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl flex flex-col p-6 md:p-8 space-y-6 my-8">
+      <div class="flex justify-between items-center">
+        <h3 class="text-xl font-bold text-white font-serif flex items-center gap-2">
+          <span class="text-amber-500">✍</span> Edit Volume Record
+        </h3>
+        <button onclick="closeEditModal()" class="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-all text-xs font-semibold px-2">
+          ✕ Close
+        </button>
+      </div>
+
+      <form id="editBookForm" onsubmit="handleEditFormSubmit(event)" class="space-y-6">
+        <input type="hidden" id="editBookId" />
+
+        <!-- Row 1: Book Title and Author First/Last Name -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Book Title -->
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                Book Title <span class="text-rose-500">*</span>
+              </label>
+              <span id="edit-listening-title" class="hidden text-xs text-rose-400 animate-pulse flex items-center gap-1 font-semibold">
+                <span class="w-1.5 h-1.5 bg-rose-500 rounded-full animate-ping"></span> Listening...
+              </span>
+            </div>
+            <div class="relative">
+              <input
+                type="text"
+                id="editFormTitle"
+                required
+                class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 pl-4 pr-12 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-slate-100 font-medium text-sm"
+              />
+              <button
+                type="button"
+                onclick="startVoiceCapture('editFormTitle', 'edit-listening-title')"
+                class="absolute right-2 top-2 p-1 rounded-lg bg-slate-800 text-amber-500 hover:bg-slate-700 hover:text-amber-400 transition-all"
+                title="Dictate book title"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Author First Name -->
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                Author First Name <span class="text-rose-500">*</span>
+              </label>
+              <span id="edit-listening-authorFirst" class="hidden text-xs text-rose-400 animate-pulse flex items-center gap-1 font-semibold">
+                <span class="w-1.5 h-1.5 bg-rose-500 rounded-full animate-ping"></span> Listening...
+              </span>
+            </div>
+            <div class="relative">
+              <input
+                type="text"
+                id="editFormAuthorFirst"
+                required
+                class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 pl-4 pr-12 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-slate-100 font-medium text-sm"
+              />
+              <button
+                type="button"
+                onclick="startVoiceCapture('editFormAuthorFirst', 'edit-listening-authorFirst')"
+                class="absolute right-2 top-2 p-1 rounded-lg bg-slate-800 text-amber-500 hover:bg-slate-700 hover:text-amber-400 transition-all"
+                title="Dictate first name"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Author Last Name -->
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                Author Last Name <span class="text-rose-500">*</span>
+              </label>
+              <span id="edit-listening-authorLast" class="hidden text-xs text-rose-400 animate-pulse flex items-center gap-1 font-semibold">
+                <span class="w-1.5 h-1.5 bg-rose-500 rounded-full animate-ping"></span> Listening...
+              </span>
+            </div>
+            <div class="relative">
+              <input
+                type="text"
+                id="editFormAuthorLast"
+                required
+                class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 pl-4 pr-12 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-slate-100 font-medium text-sm"
+              />
+              <button
+                type="button"
+                onclick="startVoiceCapture('editFormAuthorLast', 'edit-listening-authorLast')"
+                class="absolute right-2 top-2 p-1 rounded-lg bg-slate-800 text-amber-500 hover:bg-slate-700 hover:text-amber-400 transition-all"
+                title="Dictate last name"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 2: Genre, Printing, Price Paid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Genre Dropdown -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Genre</label>
+            <select id="editFormGenre" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 px-4 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-slate-100 transition-all cursor-pointer font-medium text-sm">
+              <!-- Rendered dynamically -->
+            </select>
+          </div>
+
+          <!-- Printing Numeric -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Printing (Numeric Number)</label>
+            <input
+              type="number"
+              id="editFormPrinting"
+              min="1"
+              required
+              class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 px-4 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-slate-100 font-medium text-sm"
+            />
+          </div>
+
+          <!-- Price Paid -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Price Paid ($)</label>
+            <input
+              type="number"
+              id="editFormPricePaid"
+              min="0"
+              step="0.01"
+              required
+              class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 px-4 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-slate-100 font-medium text-sm"
+            />
+          </div>
+        </div>
+
+        <!-- Row 3: Binding, Collectibility, Anthology, and Import status toggles -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Binding Type -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Binding Type</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" onclick="setEditFormBinding('paperback')" id="btnEditBindPaperback" class="py-2.5 px-4 rounded-xl font-bold text-xs border transition-all">
+                Paperback
+              </button>
+              <button type="button" onclick="setEditFormBinding('hardcover')" id="btnEditBindHardcover" class="py-2.5 px-4 rounded-xl font-bold text-xs border transition-all">
+                Hard Cover
+              </button>
+            </div>
+          </div>
+
+          <!-- Collectibility Status -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Collectibility Status</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" onclick="setEditFormCollectibility('not-rare')" id="btnEditCollectibilityStandard" class="py-2.5 px-4 rounded-xl font-bold text-xs border transition-all">
+                Standard Edition
+              </button>
+              <button type="button" onclick="setEditFormCollectibility('rare')" id="btnEditCollectibilityRare" class="py-2.5 px-4 rounded-xl font-bold text-xs border transition-all">
+                Rare Archive
+              </button>
+            </div>
+          </div>
+
+          <!-- Anthology -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Anthology? (Collection)</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" onclick="setEditFormAnthology('no')" id="btnEditAnthologyNo" class="py-2.5 px-4 rounded-xl font-bold text-xs border transition-all">
+                Single Work
+              </button>
+              <button type="button" onclick="setEditFormAnthology('yes')" id="btnEditAnthologyYes" class="py-2.5 px-4 rounded-xl font-bold text-xs border transition-all">
+                Anthology
+              </button>
+            </div>
+          </div>
+
+          <!-- Imported? (Collection) -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Imported? (Collection)</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" onclick="setEditFormImportStatus('manual')" id="btnEditImportManual" class="py-2.5 px-4 rounded-xl font-bold text-xs border transition-all">
+                Not Imported
+              </button>
+              <button type="button" onclick="setEditFormImportStatus('imported')" id="btnEditImportImported" class="py-2.5 px-4 rounded-xl font-bold text-xs border transition-all">
+                Imported
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 4: Edition, Signed by Author, Library Status -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Edition toggle -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Edition</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" onclick="setEditFormEdition('first')" id="btnEditEditionFirst" class="py-2.5 px-4 rounded-xl font-bold text-xs border transition-all">
+                First Edition
+              </button>
+              <button type="button" onclick="setEditFormEdition('not-first')" id="btnEditEditionNotFirst" class="py-2.5 px-4 rounded-xl font-bold text-xs border transition-all">
+                Not First Edition
+              </button>
+            </div>
+          </div>
+
+          <!-- Signed Status -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Signed by Author</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" onclick="setEditFormSigned('signed')" id="btnEditSignedYes" class="py-2.5 px-4 rounded-xl font-bold text-xs border transition-all">
+                Signed
+              </button>
+              <button type="button" onclick="setEditFormSigned('not-signed')" id="btnEditSignedNo" class="py-2.5 px-4 rounded-xl font-bold text-xs border transition-all">
+                Not Signed
+              </button>
+            </div>
+          </div>
+
+          <!-- Library Status -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Library Status</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" onclick="setEditFormLibraryStatus('ex-library')" id="btnEditLibEx" class="py-2.5 px-4 rounded-xl font-bold text-xs border transition-all">
+                Ex-library
+              </button>
+              <button type="button" onclick="setEditFormLibraryStatus('not-ex-library')" id="btnEditLibNotEx" class="py-2.5 px-4 rounded-xl font-bold text-xs border transition-all">
+                Not Ex-library
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Submission Row -->
+        <div class="pt-4 border-t border-slate-800/80 flex items-center justify-end gap-3">
+          <button type="button" onclick="closeEditModal()" class="py-2.5 px-6 bg-slate-950 border border-slate-800 hover:bg-slate-900 text-slate-300 font-bold rounded-xl transition-all text-xs">
+            Cancel
+          </button>
+          <button type="submit" class="py-2.5 px-8 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold rounded-xl transition-all text-xs shadow-xl flex items-center gap-2">
+            <span>Save Changes</span>
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- CATALYST SYSTEM MODAL (DATA RESET DIALOG) -->
+  <div id="systemResetModal" class="hidden fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-4">
+      <h3 class="text-lg font-bold text-white font-serif">Confirm Factory Reset?</h3>
+      <p class="text-slate-400 text-xs leading-relaxed">
+        This operation purges your local storage shelf and restores pre-configured historical catalog samples.
+      </p>
+      <div class="flex gap-3 justify-end pt-2">
+        <button onclick="toggleResetDialog(false)" class="px-4 py-2 bg-slate-850 text-slate-300 rounded-lg text-xs font-semibold hover:bg-slate-700 transition-all">Cancel</button>
+        <button onclick="executeDatabaseReset()" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-semibold transition-all">Reset Records</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================= -->
+  <!-- VANILLA JAVASCRIPT APPLICATION LOGIC -->
+  <!-- ============================================= -->
+  <script>
+    // Color palettes array for leather spine dynamic accents
+    const THEME_COLORS = [
+      { name: 'slate', bg: 'from-slate-900 to-slate-800', border: 'border-slate-700/60', text: 'text-slate-300' },
+      { name: 'indigo', bg: 'from-indigo-950 to-slate-900', border: 'border-indigo-500/30', text: 'text-indigo-400' },
+      { name: 'emerald', bg: 'from-emerald-950 to-slate-900', border: 'border-emerald-500/30', text: 'text-emerald-400' },
+      { name: 'purple', bg: 'from-purple-950 to-slate-900', border: 'border-purple-500/30', text: 'text-purple-400' },
+      { name: 'rose', bg: 'from-rose-950 to-slate-900', border: 'border-rose-500/30', text: 'text-rose-400' },
+      { name: 'amber', bg: 'from-amber-950 to-slate-900', border: 'border-amber-500/30', text: 'text-amber-400' },
+      { name: 'sky', bg: 'from-sky-950 to-slate-900', border: 'border-sky-500/30', text: 'text-sky-400' }
+    ];
+
+    const GENRES = [
+      "Science Fiction", "Fantasy", "Mystery", "Thriller", "Horror", 
+      "Biography", "History", "Classic", "Poetry", "Self-Help", "Non-Fiction"
+    ];
+
+    const fallbackBooks = [
+      { id: "1001", title: "Dune", authorFirst: "Frank", authorLast: "Herbert", type: "hardcover", collectibility: "rare", anthology: "no", category: "Classic", themeColor: "indigo", importStatus: "imported", dateAdded: "2026-05-15", genre: "Science Fiction", edition: "first", printing: 1, signed: "signed", libraryStatus: "not-ex-library", pricePaid: 150.00 },
+      { id: "1002", title: "The Hobbit", authorFirst: "J.R.R.", authorLast: "Tolkien", type: "hardcover", collectibility: "rare", anthology: "no", category: "Classic", themeColor: "emerald", importStatus: "manual", dateAdded: "2026-05-18", genre: "Fantasy", edition: "first", printing: 2, signed: "not-signed", libraryStatus: "ex-library", pricePaid: 85.00 },
+      { id: "1003", title: "Tales of Cosmic Horror", authorFirst: "H.P.", authorLast: "Lovecraft", type: "paperback", collectibility: "not-rare", anthology: "yes", category: "Classic", themeColor: "purple", importStatus: "imported", dateAdded: "2026-05-20", genre: "Horror", edition: "not-first", printing: 5, signed: "not-signed", libraryStatus: "not-ex-library", pricePaid: 12.99 },
+      { id: "1004", title: "The Great Gatsby", authorFirst: "F. Scott", authorLast: "Fitzgerald", type: "paperback", collectibility: "not-rare", anthology: "no", category: "Classic", themeColor: "amber", importStatus: "manual", dateAdded: "2026-05-22", genre: "Classic", edition: "not-first", printing: 1, signed: "not-signed", libraryStatus: "not-ex-library", pricePaid: 15.00 }
+    ];
+
+    let books = [];
+    let libraryId = '';
+
+    // Firestore Integrations
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    let db = null;
+    let auth = null;
+    let isCloudEnabled = false;
+    let currentUser = null;
+
+    // Form selection variables (Add Form)
+    let formSelectedBinding = 'paperback';
+    let formSelectedCollectibility = 'not-rare';
+    let formSelectedAnthology = 'no';
+    let formSelectedImportStatus = 'manual';
+    let formSelectedEdition = 'not-first';
+    let formSelectedSigned = 'not-signed';
+    let formSelectedLibraryStatus = 'not-ex-library';
+
+    // Form selection variables (Edit Form)
+    let editSelectedBinding = 'paperback';
+    let editSelectedCollectibility = 'not-rare';
+    let editSelectedAnthology = 'no';
+    let editSelectedImportStatus = 'manual';
+    let editSelectedEdition = 'not-first';
+    let editSelectedSigned = 'not-signed';
+    let editSelectedLibraryStatus = 'not-ex-library';
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      // Safe, non-destructive routing logic
+      let hash = window.location.hash || '';
+      if (hash.includes('id=')) {
+        libraryId = hash.split('id=')[1].split('&')[0];
+        localStorage.setItem('home_library_current_id', libraryId); // Keep active ID synced
+      } else {
+        libraryId = localStorage.getItem('home_library_current_id');
+        if (!libraryId) {
+          libraryId = 'lib-' + Math.random().toString(36).substring(2, 8);
+          localStorage.setItem('home_library_current_id', libraryId);
+        }
+      }
+
+      // Render the shareable URL
+      const currentUrl = window.location.origin + window.location.pathname + '#id=' + libraryId;
+      document.getElementById('shareableLinkInput').value = currentUrl;
+
+      // Populate Genre Selector options dynamically
+      populateGenreSelectors();
+
+      // 1. Recover Books from LocalStorage or Fallback
+      const savedBooks = localStorage.getItem('library_books_vanillajs_' + libraryId);
+      books = savedBooks ? JSON.parse(savedBooks) : fallbackBooks;
+
+      // 2. Legacy Migration Strategy: Ingest previous root library databases seamlessly
+      const legacyBooks = localStorage.getItem('library_books_vanillajs');
+      if (legacyBooks) {
+        try {
+          const parsedLegacy = JSON.parse(legacyBooks);
+          if (parsedLegacy && parsedLegacy.length > 0) {
+            books = parsedLegacy;
+            localStorage.setItem('library_books_vanillajs_' + libraryId, JSON.stringify(books));
+            localStorage.removeItem('library_books_vanillajs');
+          }
+        } catch (e) {
+          console.error("Migration Warning:", e);
+        }
+      }
+
+      // Self-healing migration from legacy 'rarity' variable name to new 'collectibility' key
+      let migrated = false;
+      books.forEach(b => {
+        if (b.rarity !== undefined && b.collectibility === undefined) {
+          b.collectibility = b.rarity;
+          delete b.rarity;
+          migrated = true;
+        }
+      });
+      if (migrated) {
+        localStorage.setItem('library_books_vanillajs_' + libraryId, JSON.stringify(books));
+      }
+
+      // Pre-run standard migrations
+      migrateLocalSchemaData();
+
+      // Force-paint initial shelf UI instantly
+      renderBooks();
+
+      // 3. Authenticate and Connect to Cloud Storage
+      if (typeof __firebase_config !== 'undefined') {
+        try {
+          const firebaseConfig = JSON.parse(__firebase_config);
+          const app = firebase.initializeApp(firebaseConfig);
+          auth = firebase.auth();
+          db = firebase.firestore();
+          isCloudEnabled = true;
+
+          // Set status indicator state
+          document.getElementById('cloudStatusBadge').textContent = 'Connecting...';
+          document.getElementById('cloudStatusBadge').className = 'inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/25 animate-pulse';
+
+          // Authenticated Session Verification (Rule 3 Compliance: Token check priority)
+          let credential;
+          try {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+              credential = await auth.signInWithCustomToken(__initial_auth_token);
+            } else {
+              credential = await auth.signInAnonymously();
+            }
+            currentUser = credential.user;
+          } catch (authError) {
+            console.error("Authenticated token session verification error:", authError);
+            // Re-attempt anonymous fallback
+            try {
+              credential = await auth.signInAnonymously();
+              currentUser = credential.user;
+            } catch (anonError) {
+              console.error("Anonymous auth fallback error:", anonError);
+            }
+          }
+
+          if (!currentUser) {
+            loadOfflineFallbackOnly();
+            return;
+          }
+
+          // Single-document Firestore Stream Hook (Rule 1 & Rule 2 compliant)
+          const docRef = db.doc(`artifacts/${appId}/public/data/libraries/${libraryId}`);
+          docRef.onSnapshot((docSnap) => {
+            if (!currentUser) return; // Rule 3 Guard
+            
+            if (docSnap.exists) {
+              const cloudData = docSnap.data();
+              if (cloudData && cloudData.books) {
+                books = cloudData.books;
+                localStorage.setItem('library_books_vanillajs_' + libraryId, JSON.stringify(books));
+                renderBooks();
+              }
+            } else {
+              // Populate empty remote documents with legacy-migrated local arrays
+              docRef.set({ books: books }).catch(err => console.error("Cloud seed rejected:", err));
+            }
+            
+            // Mark cloud active
+            document.getElementById('cloudStatusBadge').textContent = 'Cloud Active';
+            document.getElementById('cloudStatusBadge').className = 'inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/25';
+          }, (err) => {
+            console.error("Firestore loading error:", err);
+            loadOfflineFallbackOnly();
+          });
+
+        } catch (err) {
+          console.error("Firebase initialization failed, running offline.", err);
+          loadOfflineFallbackOnly();
+        }
+      } else {
+        loadOfflineFallbackOnly();
+      }
+
+      // Add-Form initial styling properties
+      setFormBinding('paperback');
+      setFormCollectibility('not-rare');
+      setFormAnthology('no');
+      setFormImportStatus('manual');
+      setFormEdition('not-first');
+      setFormSigned('not-signed');
+      setFormLibraryStatus('not-ex-library');
+    });
+
+    function loadOfflineFallbackOnly() {
+      document.getElementById('cloudStatusBadge').textContent = 'Local Storage Only';
+      document.getElementById('cloudStatusBadge').className = 'inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-850 text-slate-400';
+    }
+
+    // Populate Option values to selectors
+    function populateGenreSelectors() {
+      const filterGenre = document.getElementById('filterGenre');
+      const formGenre = document.getElementById('formGenre');
+      const editFormGenre = document.getElementById('editFormGenre');
+
+      GENRES.forEach(g => {
+        // filter element
+        const optFilter = document.createElement('option');
+        optFilter.value = g;
+        optFilter.textContent = g;
+        if (g === "Science Fiction") optFilter.selected = true;
+        filterGenre.appendChild(optFilter);
+
+        // form elements
+        const optForm = document.createElement('option');
+        optForm.value = g;
+        optForm.textContent = g;
+        if (g === "Science Fiction") optForm.selected = true;
+        formGenre.appendChild(optForm);
+
+        const optEdit = document.createElement('option');
+        optEdit.value = g;
+        optEdit.textContent = g;
+        editFormGenre.appendChild(optEdit);
+      });
+    }
+
+    // Data schema upgrades
+    function migrateLocalSchemaData() {
+      let migrated = false;
+      books.forEach(b => {
+        // Migrate 'rarity' key
+        if (b.rarity !== undefined && b.collectibility === undefined) {
+          b.collectibility = b.rarity;
+          delete b.rarity;
+          migrated = true;
+        }
+        // Seed default parameters for older/legacy data structures
+        if (b.genre === undefined) { b.genre = "Science Fiction"; migrated = true; }
+        if (b.edition === undefined) { b.edition = "not-first"; migrated = true; }
+        if (b.printing === undefined) { b.printing = 1; migrated = true; }
+        if (b.signed === undefined) { b.signed = "not-signed"; migrated = true; }
+        if (b.libraryStatus === undefined) { b.libraryStatus = "not-ex-library"; migrated = true; }
+        if (b.pricePaid === undefined) { b.pricePaid = 0.00; migrated = true; }
+      });
+      if (migrated) {
+        localStorage.setItem('library_books_vanillajs_' + libraryId, JSON.stringify(books));
+      }
+    }
+
+    async function syncBooksState() {
+      // Local persistence cache
+      localStorage.setItem('library_books_vanillajs_' + libraryId, JSON.stringify(books));
+      
+      if (!currentUser) return; // Rule 3 Guard
+      
+      if (isCloudEnabled && db) {
+        try {
+          const docRef = db.doc(`artifacts/${appId}/public/data/libraries/${libraryId}`);
+          await docRef.set({ books: books }, { merge: true });
+        } catch (err) {
+          console.error("Failed to push changes to cloud document:", err);
+          triggerToast("Cloud save error. Backup cached locally.", "warning");
+        }
+      }
+    }
+
+    function copyShareableLink() {
+      const input = document.getElementById('shareableLinkInput');
+      input.select();
+      try {
+        document.execCommand('copy');
+        triggerToast("Shareable link copied to clipboard!");
+      } catch (err) {
+        triggerToast("Copy failed. Highlight path input box to capture manually.", "warning");
+      }
+    }
+
+    function startVoiceCapture(inputId, listeningSpanId) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        triggerToast("Voice recognition is not supported in this browser. Please try Chrome or Safari.", "error");
+        return;
+      }
+
+      const inputElement = document.getElementById(inputId);
+      const listeningSpan = document.getElementById(listeningSpanId);
+      
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+
+      recognition.onstart = () => {
+        listeningSpan.classList.remove('hidden');
+        triggerToast("Voice engine active. Speak clearly now...", "info");
+      };
+
+      recognition.onend = () => {
+        listeningSpan.classList.add('hidden');
+      };
+
+      recognition.onerror = (e) => {
+        console.error("Speech Recognition Error: ", e);
+        triggerToast("Could not capture spoken input. Try again.", "error");
+        listeningSpan.classList.add('hidden');
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        if (transcript) {
+          const capitalized = transcript.trim().replace(/(^\w|\s\w)/g, m => m.toUpperCase());
+          inputElement.value = capitalized;
+          triggerToast(`Captured: "${capitalized}"`);
+        }
+      };
+
+      recognition.start();
+    }
+
+    function setFormBinding(val) {
+      formSelectedBinding = val;
+      const btnPaperback = document.getElementById('btnBindPaperback');
+      const btnHardcover = document.getElementById('btnBindHardcover');
+
+      if (val === 'paperback') {
+        btnPaperback.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all";
+        btnHardcover.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
+      } else {
+        btnHardcover.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all";
+        btnPaperback.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
+      }
+    }
+
+    function setFormCollectibility(val) {
+      formSelectedCollectibility = val;
+      const btnStandard = document.getElementById('btnCollectibilityStandard');
+      const btnRare = document.getElementById('btnCollectibilityRare');
+
+      if (val === 'not-rare') {
+        btnStandard.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all";
+        btnRare.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
+      } else {
+        btnRare.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
+        btnStandard.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
+      }
+    }
+
+    function setFormAnthology(val) {
+      formSelectedAnthology = val;
+      const btnNo = document.getElementById('btnAnthologyNo');
+      const btnYes = document.getElementById('btnAnthologyYes');
+
+      if (val === 'no') {
+        btnNo.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-sky-500/10 border-sky-500/80 text-sky-400 transition-all";
+        btnYes.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
+      } else {
+        btnYes.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-sky-500/10 border-sky-500/80 text-sky-400 transition-all";
+        btnNo.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
+      }
+    }
+
+    function setFormImportStatus(val) {
+      formSelectedImportStatus = val;
+      const btnManual = document.getElementById('btnImportManual');
+      const btnImported = document.getElementById('btnImportImported');
+
+      if (val === 'manual') {
+        btnManual.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all";
+        btnImported.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
+      } else {
+        btnImported.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all";
+        btnManual.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
+      }
+    }
+
+    function setFormEdition(val) {
+      formSelectedEdition = val;
+      const btnFirst = document.getElementById('btnEditionFirst');
+      const btnNotFirst = document.getElementById('btnEditionNotFirst');
+
+      if (val === 'first') {
+        btnFirst.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all";
+        btnNotFirst.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
+      } else {
+        btnNotFirst.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all";
+        btnFirst.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
+      }
+    }
+
+    function setFormSigned(val) {
+      formSelectedSigned = val;
+      const btnYes = document.getElementById('btnSignedYes');
+      const btnNo = document.getElementById('btnSignedNo');
+
+      if (val === 'signed') {
+        btnYes.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all";
+        btnNo.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
+      } else {
+        btnNo.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all";
+        btnYes.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
+      }
+    }
+
+    function setFormLibraryStatus(val) {
+      formSelectedLibraryStatus = val;
+      const btnLibEx = document.getElementById('btnLibEx');
+      const btnLibNotEx = document.getElementById('btnLibNotEx');
+
+      if (val === 'ex-library') {
+        btnLibEx.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all";
+        btnLibNotEx.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
+      } else {
+        btnLibNotEx.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all";
+        btnLibEx.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
+      }
+    }
+
+    // Edit Form Setters
+    function setEditFormBinding(val) {
+      editSelectedBinding = val;
+      const btnPaperback = document.getElementById('btnEditBindPaperback');
+      const btnHardcover = document.getElementById('btnEditBindHardcover');
+
+      if (val === 'paperback') {
+        btnPaperback.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all";
+        btnHardcover.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
+      } else {
+        btnHardcover.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all";
+        btnPaperback.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
+      }
+    }
+
+    function setEditFormCollectibility(val) {
+      editSelectedCollectibility = val;
+      const btnStandard = document.getElementById('btnEditCollectibilityStandard');
+      const btnRare = document.getElementById('btnEditCollectibilityRare');
+
+      if (val === 'not-rare') {
+        btnStandard.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all";
+        btnRare.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
+      } else {
+        btnRare.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all";
+        btnStandard.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
+      }
+    }
+
+    // Anthology Setter
+    function setEditFormAnthology(val) {
+      editSelectedAnthology = val;
+      const btnNo = document.getElementById('btnEditAnthologyNo');
+      const btnYes = document.getElementById('btnEditAnthologyYes');
+
+      if (val === 'no') {
+        btnNo.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-sky-500/10 border-sky-500/80 text-sky-400 transition-all";
+        btnYes.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
+      } else {
+        btnYes.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-sky-500/10 border-sky-500/80 text-sky-400 transition-all";
+        btnNo.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
+      }
+    }
+
+    function setEditFormImportStatus(val) {
+      editSelectedImportStatus = val;
+      const btnManual = document.getElementById('btnEditImportManual');
+      const btnImported = document.getElementById('btnEditImportImported');
+
+      if (val === 'manual') {
+        btnManual.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all";
+        btnImported.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
+      } else {
+        btnImported.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all";
+        btnManual.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
+      }
+    }
+
+    function setEditFormEdition(val) {
+      editSelectedEdition = val;
+      const btnFirst = document.getElementById('btnEditEditionFirst');
+      const btnNotFirst = document.getElementById('btnEditEditionNotFirst');
+
+      if (val === 'first') {
+        btnFirst.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all";
+        btnNotFirst.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
+      } else {
+        btnNotFirst.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all";
+        btnFirst.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
+      }
+    }
+
+    function setEditFormSigned(val) {
+      editSelectedSigned = val;
+      const btnYes = document.getElementById('btnEditSignedYes');
+      const btnNo = document.getElementById('btnEditSignedNo');
+
+      if (val === 'signed') {
+        btnYes.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all";
+        btnNo.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
+      } else {
+        btnNo.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all";
+        btnYes.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
+      }
+    }
+
+    function setEditFormLibraryStatus(val) {
+      editSelectedLibraryStatus = val;
+      const btnLibEx = document.getElementById('btnEditLibEx');
+      const btnLibNotEx = document.getElementById('btnEditLibNotEx');
+
+      if (val === 'ex-library') {
+        btnLibEx.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all";
+        btnLibNotEx.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
+      } else {
+        btnLibNotEx.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all";
+        btnLibEx.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
+      }
+    }
+
+    // CSV Import Logic
+    function handleCSVImport(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const text = e.target.result;
+        try {
+          const rows = parseCSV(text);
+          if (rows.length < 2) {
+            triggerToast("CSV file is empty or missing headers.", "error");
+            return;
+          }
+
+          const headers = rows[0].map(h => h.trim().toLowerCase());
+          
+          const titleIdx = headers.findIndex(h => h.includes("title") || h.includes("book"));
+          const firstIdx = headers.findIndex(h => h.includes("first") || h.includes("author first") || h.includes("firstname"));
+          const lastIdx = headers.findIndex(h => h.includes("last") || h.includes("author last") || h.includes("lastname"));
+          const genreIdx = headers.findIndex(h => h.includes("genre") || h.includes("category"));
+          const bindIdx = headers.findIndex(h => h.includes("binding") || h.includes("type"));
+          const collIdx = headers.findIndex(h => h.includes("collectibility") || h.includes("rarity") || h.includes("collectable"));
+          const anthIdx = headers.findIndex(h => h.includes("anthology"));
+          const impIdx = headers.findIndex(h => h.includes("imported") || h.includes("import"));
+          const editionIdx = headers.findIndex(h => h.includes("edition"));
+          const printingIdx = headers.findIndex(h => h.includes("printing") || h.includes("print"));
+          const signedIdx = headers.findIndex(h => h.includes("signed") || h.includes("signature"));
+          const libIdx = headers.findIndex(h => h.includes("library") || h.includes("ex-library"));
+          const priceIdx = headers.findIndex(h => h.includes("price") || h.includes("paid") || h.includes("cost"));
+          const dateIdx = headers.findIndex(h => h.includes("date") || h.includes("logged") || h.includes("added"));
+
+          let importedCount = 0;
+          const newBooks = [];
+
+          for (let r = 1; r < rows.length; r++) {
+            const row = rows[r];
+            if (row.length === 0 || (row.length === 1 && row[0] === "")) continue;
+
+            const title = titleIdx !== -1 ? row[titleIdx] : row[1];
+            const authorFirst = firstIdx !== -1 ? row[firstIdx] : row[2];
+            const authorLast = lastIdx !== -1 ? row[lastIdx] : (row[3] || "");
+
+            if (!title || !authorFirst || !authorLast) continue;
+
+            let genreVal = genreIdx !== -1 ? row[genreIdx] : "Science Fiction";
+            if (!GENRES.includes(genreVal)) {
+              genreVal = "Science Fiction";
+            }
+
+            let bindingVal = "paperback";
+            const rawBind = (bindIdx !== -1 ? row[bindIdx] : "").toLowerCase();
+            if (rawBind.includes("hard") || rawBind.includes("cloth")) {
+              bindingVal = "hardcover";
+            }
+
+            let collVal = "not-rare";
+            const rawColl = (collIdx !== -1 ? row[collIdx] : "").toLowerCase();
+            if (rawColl.includes("rare") || rawColl.includes("collect") || rawColl.includes("★")) {
+              collVal = "rare";
+            }
+
+            let anthVal = "no";
+            const rawAnth = (anthIdx !== -1 ? row[anthIdx] : "").toLowerCase();
+            if (rawAnth.includes("yes") || rawAnth.includes("y") || rawAnth.includes("true")) {
+              anthVal = "yes";
+            }
+
+            let impVal = "manual";
+            const rawImp = (impIdx !== -1 ? row[impIdx] : "").toLowerCase();
+            if (rawImp.includes("yes") || rawImp.includes("imported") || rawImp.includes("y") || rawImp.includes("true")) {
+              impVal = "imported";
+            }
+
+            let editionVal = "not-first";
+            const rawEd = (editionIdx !== -1 ? row[editionIdx] : "").toLowerCase();
+            if (rawEd.includes("first") || rawEd.includes("1st")) {
+              editionVal = "first";
+            }
+
+            let printingVal = 1;
+            if (printingIdx !== -1 && row[printingIdx]) {
+              const p = parseInt(row[printingIdx], 10);
+              if (!isNaN(p)) printingVal = p;
+            }
+
+            let signedVal = "not-signed";
+            const rawSign = (signedIdx !== -1 ? row[signedIdx] : "").toLowerCase();
+            if (rawSign.includes("signed") || rawSign.includes("yes") || rawSign.includes("y")) {
+              signedVal = "signed";
+            }
+
+            let libVal = "not-ex-library";
+            const rawLib = (libIdx !== -1 ? row[libIdx] : "").toLowerCase();
+            if (rawLib.includes("ex-library") || rawLib.includes("ex") || rawLib.includes("yes") || rawLib.includes("y")) {
+              libVal = "ex-library";
+            }
+
+            let priceVal = 0.00;
+            if (priceIdx !== -1 && row[priceIdx]) {
+              const p = parseFloat(row[priceIdx].replace(/[^0-9.]/g, ''));
+              if (!isNaN(p)) priceVal = p;
+            }
+
+            const dateVal = dateIdx !== -1 && row[dateIdx] ? row[dateIdx] : new Date().toISOString().split('T')[0];
+            const randomThemeColor = THEME_COLORS[Math.floor(Math.random() * THEME_COLORS.length)].name;
+
+            newBooks.push({
+              id: (Date.now() + importedCount).toString().slice(-6),
+              title: title.trim(),
+              authorFirst: authorFirst.trim(),
+              authorLast: authorLast.trim(),
+              type: bindingVal,
+              collectibility: collVal,
+              anthology: anthVal,
+              importStatus: impVal,
+              category: "Classic",
+              genre: genreVal,
+              edition: editionVal,
+              printing: printingVal,
+              signed: signedVal,
+              libraryStatus: libVal,
+              pricePaid: priceVal,
+              themeColor: randomThemeColor,
+              dateAdded: dateVal.trim()
+            });
+            importedCount++;
+          }
+
+          if (newBooks.length === 0) {
+            triggerToast("No records matched import requirements. Check Header Name columns.", "warning");
+            return;
+          }
+
+          books = [...newBooks, ...books];
+          syncBooksState();
+          triggerToast(`Successfully imported ${newBooks.length} book volumes!`, "success");
+          renderBooks();
+        } catch (err) {
+          console.error("CSV Import Error: ", err);
+          triggerToast("Invalid CSV layout format.", "error");
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = ""; // Clear file selector
+    }
+
+    // Export current filtered dataset as CSV
+    function exportBooksToCSV() {
+      const searchQuery = document.getElementById('searchQuery').value.toLowerCase().trim();
+      const filterType = document.getElementById('filterType').value;
+      const filterCollectibility = document.getElementById('filterCollectibility').value;
+      const filterAnthology = document.getElementById('filterAnthology').value;
+      const filterImportStatus = document.getElementById('filterImportStatus').value;
+      const filterGenre = document.getElementById('filterGenre').value;
+      const filterEdition = document.getElementById('filterEdition').value;
+      const filterSigned = document.getElementById('filterSigned').value;
+      const filterLibraryStatus = document.getElementById('filterLibraryStatus').value;
+
+      const processed = books.filter(b => {
+        const matchesSearch = b.title.toLowerCase().includes(searchQuery) || 
+                              `${b.authorFirst} ${b.authorLast}`.toLowerCase().includes(searchQuery);
+        const matchesType = filterType === 'All' || b.type === filterType;
+        const matchesCollectibility = filterCollectibility === 'All' || b.collectibility === filterCollectibility;
+        const matchesAnthology = filterAnthology === 'All' || b.anthology === filterAnthology;
+        const matchesImportStatus = filterImportStatus === 'All' || b.importStatus === filterImportStatus;
+        const matchesGenre = filterGenre === 'All' || b.genre === filterGenre;
+        const matchesEdition = filterEdition === 'All' || b.edition === filterEdition;
+        const matchesSigned = filterSigned === 'All' || b.signed === filterSigned;
+        const matchesLibraryStatus = filterLibraryStatus === 'All' || b.libraryStatus === filterLibraryStatus;
+
+        return matchesSearch && matchesType && matchesCollectibility && matchesAnthology && matchesImportStatus && matchesGenre && matchesEdition && matchesSigned && matchesLibraryStatus;
+      });
+
+      if (processed.length === 0) {
+        triggerToast("No books found matching criteria to export.", "warning");
+        return;
+      }
+
+      const headers = ["ID", "Book Title", "Author First Name", "Author Last Name", "Category", "Binding Type", "Collectibility Level", "Anthology", "Imported?", "First Edition?", "Printing", "Signed?", "Ex-library?", "Price Paid", "Date Logged"];
+      const csvRows = [headers.join(",")];
+
+      processed.forEach(b => {
+        const row = [
+          `"${b.id}"`,
+          `"${b.title.replace(/"/g, '""')}"`,
+          `"${b.authorFirst.replace(/"/g, '""')}"`,
+          `"${(b.authorLast || '').replace(/"/g, '""')}"`,
+          `"${b.genre}"`,
+          `"${b.type}"`,
+          `"${b.collectibility}"`,
+          `"${b.anthology === 'yes' ? 'Yes' : 'No'}"`,
+          `"${b.importStatus === 'imported' ? 'Yes' : 'No'}"`,
+          `"${b.edition === 'first' ? 'Yes' : 'No'}"`,
+          `"${b.printing}"`,
+          `"${b.signed === 'signed' ? 'Yes' : 'No'}"`,
+          `"${b.libraryStatus === 'ex-library' ? 'Yes' : 'No'}"`,
+          `"${b.pricePaid}"`,
+          `"${b.dateAdded}"`
+        ];
+        csvRows.push(row.join(","));
+      });
+
+      const csvString = csvRows.join("\n");
+      const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      
+      const fileTimestamp = new Date().toISOString().split('T')[0];
+      link.setAttribute("href", url);
+      link.setAttribute("download", `home_library_export_${fileTimestamp}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      triggerToast(`Successfully exported ${processed.length} volumes to CSV!`, "success");
+    }
+
+    // Save volume
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      
+      const title = document.getElementById('formTitle').value.trim();
+      const authorFirst = document.getElementById('formAuthorFirst').value.trim();
+      const authorLast = document.getElementById('formAuthorLast').value.trim();
+      const genre = document.getElementById('formGenre').value;
+      const printing = parseInt(document.getElementById('formPrinting').value, 10) || 1;
+      const pricePaid = parseFloat(document.getElementById('formPricePaid').value) || 0.00;
+
+      if (!title || !authorFirst || !authorLast) {
+        triggerToast("Please fill in all required form fields.", "warning");
+        return;
+      }
+
+      const randomThemeColor = THEME_COLORS[Math.floor(Math.random() * THEME_COLORS.length)].name;
+
+      const bookPayload = {
+        id: Date.now().toString().slice(-6),
+        title,
+        authorFirst,
+        authorLast,
+        genre,
+        type: formSelectedBinding,
+        collectibility: formSelectedCollectibility,
+        anthology: formSelectedAnthology,
+        importStatus: formSelectedImportStatus,
+        edition: formSelectedEdition,
+        printing,
+        signed: formSelectedSigned,
+        libraryStatus: formSelectedLibraryStatus,
+        pricePaid,
+        category: "Classic",
+        themeColor: randomThemeColor,
+        dateAdded: new Date().toISOString().split('T')[0]
+      };
+
+      books.unshift(bookPayload);
+      syncBooksState();
+      triggerToast(`"${title}" logged into archive.`);
+
+      // Reset Form fields
+      document.getElementById('addBookForm').reset();
+      setFormBinding('paperback');
+      setFormCollectibility('not-rare');
+      setFormAnthology('no');
+      setFormImportStatus('manual');
+      setFormEdition('not-first');
+      setFormSigned('not-signed');
+      setFormLibraryStatus('not-ex-library');
+
+      renderBooks();
+    }
+
+    // Edit Modal Operators
+    function openEditModal(bookId) {
+      const book = books.find(b => b.id === bookId);
+      if (!book) return;
+
+      document.getElementById('editBookId').value = book.id;
+      document.getElementById('editFormTitle').value = book.title;
+      document.getElementById('editFormAuthorFirst').value = book.authorFirst;
+      document.getElementById('editFormAuthorLast').value = book.authorLast;
+      document.getElementById('editFormGenre').value = book.genre || "Science Fiction";
+      document.getElementById('editFormPrinting').value = book.printing || 1;
+      document.getElementById('editFormPricePaid').value = (book.pricePaid !== undefined) ? book.pricePaid : "0.00";
+
+      setEditFormBinding(book.type);
+      setEditFormCollectibility(book.collectibility);
+      setEditFormAnthology(book.anthology);
+      setEditFormImportStatus(book.importStatus || 'manual');
+      setEditFormEdition(book.edition || 'not-first');
+      setEditFormSigned(book.signed || 'not-signed');
+      setEditFormLibraryStatus(book.libraryStatus || 'not-ex-library');
+
+      closeBookModal();
+
+      const modal = document.getElementById('editBookModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeEditModal() {
+      const modal = document.getElementById('editBookModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // Handle Edit Form Submission
+    function handleEditFormSubmit(e) {
+      e.preventDefault();
+      const bookId = document.getElementById('editBookId').value;
+      const book = books.find(b => b.id === bookId);
+      if (!book) return;
+
+      const title = document.getElementById('editFormTitle').value.trim();
+      const authorFirst = document.getElementById('editFormAuthorFirst').value.trim();
+      const authorLast = document.getElementById('editFormAuthorLast').value.trim();
+      const genre = document.getElementById('editFormGenre').value;
+      const printing = parseInt(document.getElementById('editFormPrinting').value, 10) || 1;
+      const pricePaid = parseFloat(document.getElementById('editFormPricePaid').value) || 0.00;
+
+      if (!title || !authorFirst || !authorLast) {
+        triggerToast("Please provide all required book parameters.", "warning");
+        return;
+      }
+
+      book.title = title;
+      book.authorFirst = authorFirst;
+      book.authorLast = authorLast;
+      book.genre = genre;
+      book.type = editSelectedBinding;
+      book.collectibility = editSelectedCollectibility;
+      book.anthology = editSelectedAnthology;
+      book.importStatus = editSelectedImportStatus;
+      book.edition = editSelectedEdition;
+      book.printing = printing;
+      book.signed = editSelectedSigned;
+      book.libraryStatus = editSelectedLibraryStatus;
+      book.pricePaid = pricePaid;
+
+      syncBooksState();
+      triggerToast(`Changes to "${title}" successfully updated!`, "success");
+
+      closeEditModal();
+      renderBooks();
+    }
+
+    // Delete book volume
+    function deleteBookItem(bookId, title) {
+      books = books.filter(b => b.id !== bookId);
+      syncBooksState();
+      triggerToast(`"${title}" removed from catalog indexes.`, "info");
+      
+      closeBookModal();
+      renderBooks();
+    }
+
+    function handleFilterChange() {
+      renderBooks();
+    }
+
+    function clearSearchFilters() {
+      document.getElementById('searchQuery').value = '';
+      document.getElementById('filterType').value = 'All';
+      document.getElementById('filterCollectibility').value = 'All';
+      document.getElementById('filterAnthology').value = 'All';
+      document.getElementById('filterImportStatus').value = 'All';
+      document.getElementById('filterGenre').value = 'Science Fiction';
+      document.getElementById('filterEdition').value = 'All';
+      document.getElementById('filterSigned').value = 'All';
+      document.getElementById('filterLibraryStatus').value = 'All';
+      renderBooks();
+    }
+
+    // Core table rendering with search criteria evaluation
+    function renderBooks() {
+      const tbody = document.getElementById('booksTableBody');
+      const emptyState = document.getElementById('emptyTableState');
+      tbody.innerHTML = '';
+
+      const searchQuery = document.getElementById('searchQuery').value.toLowerCase().trim();
+      const filterType = document.getElementById('filterType').value;
+      const filterCollectibility = document.getElementById('filterCollectibility').value;
+      const filterAnthology = document.getElementById('filterAnthology').value;
+      const filterImportStatus = document.getElementById('filterImportStatus').value;
+      const filterGenre = document.getElementById('filterGenre').value;
+      const filterEdition = document.getElementById('filterEdition').value;
+      const filterSigned = document.getElementById('filterSigned').value;
+      const filterLibraryStatus = document.getElementById('filterLibraryStatus').value;
+      const sortBy = document.getElementById('sortBy').value;
+
+      let processed = books.filter(b => {
+        const matchesSearch = b.title.toLowerCase().includes(searchQuery) || 
+                              `${b.authorFirst} ${b.authorLast}`.toLowerCase().includes(searchQuery);
+        const matchesType = filterType === 'All' || b.type === filterType;
+        const matchesCollectibility = filterCollectibility === 'All' || b.collectibility === filterCollectibility;
+        const matchesAnthology = filterAnthology === 'All' || b.anthology === filterAnthology;
+        const matchesImportStatus = filterImportStatus === 'All' || b.importStatus === filterImportStatus;
+        const matchesGenre = filterGenre === 'All' || b.genre === filterGenre;
+        const matchesEdition = filterEdition === 'All' || b.edition === filterEdition;
+        const matchesSigned = filterSigned === 'All' || b.signed === filterSigned;
+        const matchesLibraryStatus = filterLibraryStatus === 'All' || b.libraryStatus === filterLibraryStatus;
+
+        return matchesSearch && matchesType && matchesCollectibility && matchesAnthology && matchesImportStatus && matchesGenre && matchesEdition && matchesSigned && matchesLibraryStatus;
+      });
+
+      // Sorting
+      processed.sort((a, b) => {
+        if (sortBy === 'newest') return b.id.localeCompare(a.id);
+        if (sortBy === 'oldest') return a.id.localeCompare(b.id);
+        if (sortBy === 'title-asc') return a.title.localeCompare(b.title);
+        if (sortBy === 'title-desc') return b.title.localeCompare(a.title);
+        return 0;
+      });
+
+      updateStatsCounters();
+      document.getElementById('filteredCountBadge').textContent = `${processed.length} volumes matched`;
+
+      if (processed.length === 0) {
+        emptyState.classList.remove('hidden');
+        return;
+      }
+      emptyState.classList.add('hidden');
+
+      // Render table rows
+      processed.forEach(b => {
+        const theme = THEME_COLORS.find(c => c.name === b.themeColor) || THEME_COLORS[0];
+        const row = document.createElement('tr');
+        row.className = "hover:bg-slate-900/40 border-b border-slate-800/60 transition-colors";
+        
+        row.innerHTML = `
+          <td class="py-4 px-6 font-bold text-white flex items-center gap-2.5">
+            <span class="w-3 h-3 rounded-full bg-gradient-to-tr ${theme.bg} shadow-sm"></span>
+            ${b.title}
+          </td>
+          <td class="py-4 px-6 text-slate-300 font-medium">${b.authorFirst} ${b.authorLast}</td>
+          <td class="py-4 px-6 text-slate-300 font-medium">${b.genre || "Science Fiction"}</td>
+          <td class="py-4 px-6 text-slate-300 capitalize text-xs">${b.type}</td>
+          <td class="py-4 px-6">
+            ${b.collectibility === 'rare' 
+              ? '<span class="text-amber-400 font-bold flex items-center gap-1 text-[11px]">★ Rare</span>' 
+              : '<span class="text-slate-500 text-xs">Standard</span>'
+            }
+          </td>
+          <td class="py-4 px-6">
+            ${b.edition === 'first' 
+              ? '<span class="text-sky-400 font-semibold text-xs">Yes</span>' 
+              : '<span class="text-slate-500 text-xs">No</span>'
+            }
+          </td>
+          <td class="py-4 px-6">
+            ${b.signed === 'signed' 
+              ? '<span class="text-amber-400 font-semibold text-xs">Yes</span>' 
+              : '<span class="text-slate-500 text-xs">No</span>'
+            }
+          </td>
+          <td class="py-4 px-6">
+            ${b.libraryStatus === 'ex-library' 
+              ? '<span class="text-rose-400 font-semibold text-xs">Yes</span>' 
+              : '<span class="text-slate-500 text-xs">No</span>'
+            }
+          </td>
+          <td class="py-4 px-6 text-emerald-400 font-bold text-xs">$${(b.pricePaid !== undefined ? parseFloat(b.pricePaid).toFixed(2) : "0.00")}</td>
+          <td class="py-4 px-6 text-right">
+            <div class="flex items-center justify-end gap-2">
+              <button onclick="openBookModalById('${b.id}')" class="text-xs text-amber-500 hover:text-amber-400 font-bold px-2.5 py-1 bg-amber-500/10 hover:bg-amber-500/20 rounded-lg transition-all">
+                Details
+              </button>
+              <button onclick="openEditModal('${b.id}')" class="text-xs text-sky-400 hover:text-sky-300 font-bold px-2.5 py-1 bg-sky-500/10 hover:bg-sky-500/20 rounded-lg transition-all flex items-center gap-1">
+                Edit
+              </button>
+              <button onclick="deleteBookItem('${b.id}', '${b.title}')" class="text-slate-500 hover:text-rose-400 p-1.5 hover:bg-rose-500/10 rounded-lg transition-all" title="Remove Record">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function updateStatsCounters() {
+      document.getElementById('statTotalBooks').textContent = books.length;
+      document.getElementById('statRareBooks').textContent = books.filter(b => b.collectibility === 'rare').length;
+      document.getElementById('statFirstPrinting').textContent = books.filter(b => parseInt(b.printing, 10) === 1).length;
+      document.getElementById('statFirstEdition').textContent = books.filter(b => b.edition === 'first').length;
+      document.getElementById('statExLibrary').textContent = books.filter(b => b.libraryStatus === 'ex-library').length;
+    }
+
+    // Toast Manager
+    function triggerToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      const id = Date.now();
+      toast.id = `toast-${id}`;
+      
+      let badgeStyles = 'bg-emerald-950/95 border-emerald-500/50 text-emerald-200';
+      if (type === 'error') badgeStyles = 'bg-rose-950/95 border-rose-500/50 text-rose-200';
+      if (type === 'warning') badgeStyles = 'bg-amber-950/95 border-amber-500/50 text-amber-200';
+      if (type === 'info') badgeStyles = 'bg-slate-900/95 border-slate-700/50 text-slate-200';
+
+      toast.className = `p-4 rounded-xl shadow-2xl flex items-center justify-between border transition-all duration-300 transform translate-y-0 ${badgeStyles}`;
+      toast.innerHTML = `
+        <span class="text-xs font-semibold">${message}</span>
+        <button onclick="dismissToast(${id})" class="text-xs font-semibold ml-4 opacity-50 hover:opacity-100">✕</button>
+      `;
+
+      container.appendChild(toast);
+      setTimeout(() => dismissToast(id), 3500);
+    }
+
+    function dismissToast(id) {
+      const toast = document.getElementById(`toast-${id}`);
+      if (toast) {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }
+    }
+
+    // Modal Controller
+    function openBookModalById(bookId) {
+      const book = books.find(b => b.id === bookId);
+      if (!book) return;
+
+      const modal = document.getElementById('selectedBookModal');
+      const theme = THEME_COLORS.find(c => c.name === book.themeColor) || THEME_COLORS[0];
+
+      document.getElementById('modalSpineHeader').className = `p-8 bg-gradient-to-b ${theme.bg} border-b border-slate-800 text-center space-y-3 relative`;
+      document.getElementById('modalGenreLabel').textContent = book.genre || 'Classic';
+      document.getElementById('modalTitle').textContent = book.title;
+      document.getElementById('modalAuthor').textContent = `By ${book.authorFirst} ${book.authorLast}`;
+      document.getElementById('modalBinding').textContent = book.type;
+      document.getElementById('modalAnthology').textContent = book.anthology === 'yes' ? 'Yes' : 'No';
+      document.getElementById('modalImportStatus').textContent = book.importStatus === 'imported' ? 'Yes' : 'No';
+      document.getElementById('modalEdition').textContent = book.edition === 'first' ? 'Yes' : 'No';
+      document.getElementById('modalPrinting').textContent = book.printing || 1;
+      document.getElementById('modalSigned').textContent = book.signed === 'signed' ? 'Yes' : 'No';
+      document.getElementById('modalLibraryStatus').textContent = book.libraryStatus === 'ex-library' ? 'Yes' : 'No';
+      document.getElementById('modalPricePaid').textContent = `$${(book.pricePaid !== undefined ? parseFloat(book.pricePaid).toFixed(2) : "0.00")}`;
+      document.getElementById('modalDate').textContent = book.dateAdded;
+      document.getElementById('modalId').textContent = book.id;
+
+      const rarityContainer = document.getElementById('modalCollectibilityBadge');
+      if (book.collectibility === 'rare') {
+        rarityContainer.innerHTML = '<span class="text-amber-400 bg-amber-500/10 border border-amber-400/20 px-2.5 py-0.5 rounded-md text-xs font-bold">★ Rare Edition</span>';
+      } else {
+        rarityContainer.textContent = 'Standard Edition';
+      }
+
+      document.getElementById('modalBtnEdit').onclick = () => openEditModal(book.id);
+      document.getElementById('modalBtnDelete').onclick = () => deleteBookItem(book.id, book.title);
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeBookModal() {
+      const modal = document.getElementById('selectedBookModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // Modal Reset
+    function toggleResetDialog(visible) {
+      const modal = document.getElementById('systemResetModal');
+      if (visible) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      } else {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
+    function executeDatabaseReset() {
+      books = [...fallbackBooks];
+      syncBooksState();
+      triggerToast("Catalog reset back to default values.");
+      toggleResetDialog(false);
+      renderBooks();
+    }
+  </script>
+</body>
+</html>
+
+```
