@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -51,6 +51,17 @@
     }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover {
       background: #475569;
+    }
+
+    /* Core Freeze & Sticky Override CSS to prevent transparent text bleed during horizontal scroll */
+    th.sticky-col {
+      background-color: #020617 !important; /* Matches bg-slate-950 */
+    }
+    td.sticky-col {
+      background-color: #0f172a !important; /* Matches bg-slate-900 */
+    }
+    tbody tr:hover td.sticky-col {
+      background-color: #1e293b !important; /* Matches bg-slate-800 hover focus */
     }
   </style>
 </head>
@@ -160,7 +171,7 @@
     </div>
 
     <!-- ============================================= -->
-    <!-- CATALOG NEW VOLUME CARD (HOMEPAGE TOP) -->
+    <!-- CATALOG NEW BOOK FORM -->
     <!-- ============================================= -->
     <div class="bg-slate-900/30 rounded-2xl border border-slate-800 p-6 md:p-8 space-y-6">
       <div>
@@ -168,7 +179,7 @@
           <span class="text-amber-500">⚜</span> Catalog New Book Volume
         </h2>
         <p class="text-slate-400 text-sm mt-1">
-          Input book metadata manually or use the native voice capture engine next to the text fields.
+          Input book metadata manually, use voice capture, or scan the EAN-13 barcode with your device camera.
         </p>
       </div>
 
@@ -197,7 +208,7 @@
               <button
                 type="button"
                 onclick="startVoiceCapture('formTitle', 'listening-title')"
-                class="absolute right-2 top-2 p-1 rounded-lg bg-slate-800 text-amber-500 hover:bg-slate-700 hover:text-amber-400 transition-all"
+                class="absolute right-2 top-2.5 p-1 rounded-lg bg-slate-800 text-amber-500 hover:bg-slate-700 hover:text-amber-400 transition-all"
                 title="Dictate book title"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
@@ -226,10 +237,10 @@
               <button
                 type="button"
                 onclick="startVoiceCapture('formAuthorFirst', 'listening-authorFirst')"
-                class="absolute right-2 top-2 p-1 rounded-lg bg-slate-800 text-amber-500 hover:bg-slate-700 hover:text-amber-400 transition-all"
+                class="absolute right-2 top-2.5 p-1 rounded-lg bg-slate-800 text-amber-500 hover:bg-slate-700 hover:text-amber-400 transition-all"
                 title="Dictate first name"
               >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
               </button>
             </div>
           </div>
@@ -255,7 +266,7 @@
               <button
                 type="button"
                 onclick="startVoiceCapture('formAuthorLast', 'listening-authorLast')"
-                class="absolute right-2 top-2 p-1 rounded-lg bg-slate-800 text-amber-500 hover:bg-slate-700 hover:text-amber-400 transition-all"
+                class="absolute right-2 top-2.5 p-1 rounded-lg bg-slate-800 text-amber-500 hover:bg-slate-700 hover:text-amber-400 transition-all"
                 title="Dictate last name"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
@@ -264,8 +275,8 @@
           </div>
         </div>
 
-        <!-- Row 2: Genre, Printing, Price Paid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Row 2: Genre, Printing, Price Paid, and ISBN -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <!-- Genre Dropdown -->
           <div>
             <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Genre</label>
@@ -299,6 +310,39 @@
               required
               class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 px-4 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-slate-100 font-medium text-sm"
             />
+          </div>
+
+          <!-- ISBN Input Field with built-in Camera Barcode scanning -->
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">ISBN (10 or 13 digits)</label>
+              <span class="text-[10px] text-amber-500 font-medium hidden sm:inline">Supports Camera Scan</span>
+            </div>
+            <div class="relative">
+              <input
+                type="text"
+                id="formIsbn"
+                placeholder="e.g. 9780441172719"
+                class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 pl-4 pr-24 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-slate-100 font-mono placeholder-slate-600 transition-all text-sm"
+                title="iPhone Users: Tap input directly and select 'Scan Text' to use apple live scanning!"
+              />
+              <!-- Scanning Trigger -->
+              <button
+                type="button"
+                onclick="openScanner()"
+                class="absolute right-2 top-2 px-2 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500 hover:text-slate-950 hover:border-transparent transition-all flex items-center gap-1"
+                title="Scan barcode with camera"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
+                </svg>
+                <span class="text-[10px] font-extrabold uppercase">Scan</span>
+              </button>
+            </div>
+            <p class="text-[9px] text-slate-500 mt-1 leading-tight">
+              iPhone Tip: Tap input, then tap the keyboard icon and choose <strong class="text-amber-500/80">"Scan Text"</strong>.
+            </p>
           </div>
         </div>
 
@@ -430,7 +474,7 @@
             type="text"
             id="searchQuery"
             oninput="handleFilterChange()"
-            placeholder="Search catalog by book name or author..."
+            placeholder="Search catalog by book name, author, or ISBN..."
             class="w-full pl-10 pr-12 py-3 bg-slate-950/80 border border-slate-800 rounded-xl focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-slate-100 placeholder-slate-500 transition-all"
           />
           <button 
@@ -464,7 +508,7 @@
           <label class="block text-xs text-slate-400 mb-1 font-medium">Genre</label>
           <select id="filterGenre" onchange="handleFilterChange()" class="w-full bg-slate-950/80 border border-slate-800 text-[11px] rounded-xl px-2.5 py-2 text-slate-300 focus:border-amber-500 outline-none">
             <option value="All">All Genres</option>
-            <!-- Populated dynamically with Science Fiction pre-selected on load -->
+            <!-- Populated dynamically with "All Genres" selected by default -->
           </select>
         </div>
 
@@ -546,11 +590,11 @@
     <div class="bg-slate-900/40 rounded-2xl border border-slate-800 overflow-hidden shadow-xl">
       <div class="px-6 py-4 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h3 class="text-base font-bold text-white flex items-center gap-2">
-          <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25a2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" /></svg>
+          <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25a2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25a2.25 2.25 0 0113.5 18v-2.25z" /></svg>
           Logged Books Archive
         </h3>
         <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
-          <span id="filteredCountBadge" class="text-xs bg-slate-800 text-slate-300 px-2.5 py-1.5 rounded-full font-semibold border border-slate-700">0 volumes matched</span>
+          <span id="filteredCountBadge" class="text-xs bg-slate-850 text-slate-300 px-2.5 py-1.5 rounded-full font-semibold border border-slate-700">0 volumes matched</span>
           
           <div class="flex items-center gap-2">
             <!-- Hidden Import Trigger -->
@@ -572,20 +616,31 @@
         </div>
       </div>
 
+      <!-- Scrollable table container supporting custom width thresholds -->
       <div class="overflow-x-auto custom-scrollbar">
-        <table class="w-full text-left text-xs text-slate-300 border-collapse border-b border-slate-800">
+        <table class="w-full text-left text-xs text-slate-300 border-collapse border-b border-slate-800 min-w-[1550px]">
           <thead class="bg-slate-950 text-slate-400 uppercase tracking-wider font-semibold">
             <tr>
-              <th class="py-3.5 px-6">Book Title</th>
-              <th class="py-3.5 px-6">Author</th>
-              <th class="py-3.5 px-6">Genre</th>
-              <th class="py-3.5 px-6">Binding Type</th>
-              <th class="py-3.5 px-6">Collectibility</th>
-              <th class="py-3.5 px-6">First Edition?</th>
-              <th class="py-3.5 px-6">Signed?</th>
-              <th class="py-3.5 px-6">Ex-library?</th>
-              <th class="py-3.5 px-6">Price Paid</th>
-              <th class="py-3.5 px-6 text-right">Actions</th>
+              <!-- Sticky Column: Book Title is the ONLY frozen header column -->
+              <th class="sticky left-0 bg-slate-950 z-30 border-r border-slate-800/80 py-3.5 px-6 w-[180px] min-w-[180px] max-w-[180px]">Book Title</th>
+              
+              <!-- Standard scrolling headers -->
+              <th class="py-3.5 px-6 min-w-[140px]">Author</th>
+              <th class="py-3.5 px-6 min-w-[120px]">Genre</th>
+              <th class="py-3.5 px-6 min-w-[120px]">ISBN</th>
+              <th class="py-3.5 px-6 min-w-[110px]">Binding Type</th>
+              <th class="py-3.5 px-6 min-w-[120px]">Collectibility</th>
+              <th class="py-3.5 px-6 min-w-[110px]">First Edition?</th>
+              <th class="py-3.5 px-6 min-w-[90px]">Printing</th>
+              <th class="py-3.5 px-6 min-w-[90px]">Signed?</th>
+              <th class="py-3.5 px-6 min-w-[100px]">Ex-library?</th>
+              <th class="py-3.5 px-6 min-w-[100px]">Price Paid</th>
+              <th class="py-3.5 px-6 min-w-[100px]">Anthology?</th>
+              <th class="py-3.5 px-6 min-w-[100px]">Imported?</th>
+              <th class="py-3.5 px-6 min-w-[120px]">Date Logged</th>
+              
+              <!-- Actions at the very end of the row header -->
+              <th class="py-3.5 px-6 text-right min-w-[140px]">Actions</th>
             </tr>
           </thead>
           <tbody id="booksTableBody" class="divide-y divide-slate-800/60 bg-slate-900/10">
@@ -637,6 +692,10 @@
             <div class="flex items-center justify-between text-sm py-2 border-b border-slate-800/80">
               <span class="text-slate-400">Collectibility</span>
               <span id="modalCollectibilityBadge" class="font-bold flex items-center gap-1.5">-</span>
+            </div>
+            <div class="flex items-center justify-between text-sm py-2 border-b border-slate-800/80 font-mono text-xs">
+              <span class="text-slate-400">ISBN Code</span>
+              <span id="modalIsbn" class="text-amber-400 font-bold">-</span>
             </div>
             <div class="flex items-center justify-between text-sm py-2 border-b border-slate-800/80">
               <span class="text-slate-400">First Edition?</span>
@@ -795,7 +854,7 @@
           </div>
         </div>
 
-        <!-- Row 2: Genre, Printing, Price Paid -->
+        <!-- Row 2: Genre, Printing, Price Paid, and ISBN -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- Genre Dropdown -->
           <div>
@@ -807,7 +866,7 @@
 
           <!-- Printing Numeric -->
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Printing (Numeric Number)</label>
+            <label class="block text-xs font-semibold text-slate-300 tracking-wider mb-2">Printing (Numeric Number)</label>
             <input
               type="number"
               id="editFormPrinting"
@@ -819,7 +878,7 @@
 
           <!-- Price Paid -->
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Price Paid ($)</label>
+            <label class="block text-xs font-semibold text-slate-300 tracking-wider mb-2">Price Paid ($)</label>
             <input
               type="number"
               id="editFormPricePaid"
@@ -828,6 +887,31 @@
               required
               class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 px-4 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-slate-100 font-medium text-sm"
             />
+          </div>
+
+          <!-- ISBN -->
+          <div class="md:col-span-3">
+            <label class="block text-xs font-semibold text-slate-300 tracking-wider mb-2">ISBN</label>
+            <div class="relative">
+              <input
+                type="text"
+                id="editFormIsbn"
+                placeholder="e.g. 9780441172719"
+                class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 pl-4 pr-24 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-slate-100 font-mono transition-all text-sm"
+              />
+              <button
+                type="button"
+                onclick="openScanner()"
+                class="absolute right-2 top-2 px-2 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500 hover:text-slate-950 hover:border-transparent transition-all flex items-center gap-1"
+                title="Scan barcode with camera"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
+                </svg>
+                <span class="text-[10px] font-extrabold uppercase">Scan</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -942,7 +1026,41 @@
     </div>
   </div>
 
-  <!-- --- FOOTER --- -->
+  <!-- INTERACTIVE CAMERA BARCODE SCANNER MODAL -->
+  <div id="barcodeScannerModal" class="hidden fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4 backdrop-blur-md">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full overflow-hidden shadow-2xl flex flex-col p-6 space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h4 class="font-bold text-white text-sm flex items-center gap-2">
+          <span class="w-2 h-2 bg-rose-500 rounded-full animate-ping"></span> Live EAN Barcode Reader
+        </h4>
+        <button onclick="closeScanner()" class="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-all text-xs font-semibold px-2">✕ Close</button>
+      </div>
+
+      <p class="text-xs text-slate-400 leading-relaxed" id="scannerHint">
+        Hold the book's EAN-13 barcode flat and center it inside the scanning target reticle frame.
+      </p>
+
+      <!-- Video Feed Container -->
+      <div class="relative w-full aspect-square bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden flex items-center justify-center">
+        <video id="scannerVideo" autoplay playsinline muted class="w-full h-full object-cover"></video>
+        
+        <!-- Target reticle frame overlay -->
+        <div id="scannerTarget" class="absolute border-4 border-amber-500/40 rounded-xl w-64 h-32 flex items-center justify-center bg-transparent">
+          <!-- Active laser line -->
+          <div class="w-full h-0.5 bg-rose-500 animate-pulse"></div>
+        </div>
+      </div>
+
+      <div id="scannerError" class="hidden text-xs text-rose-400 bg-rose-950/30 border border-rose-500/35 p-3 rounded-xl leading-relaxed text-center font-medium"></div>
+
+      <p class="text-[10px] text-slate-500 text-center leading-relaxed">
+        Requires a modern browser (Safari 17+, Chrome, or Firefox) with rear-facing autofocus camera stream capabilities.
+      </p>
+    </div>
+  </div>
+
+  
+      <!-- --- FOOTER --- -->
   <footer class="border-t border-slate-900 py-8 mt-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500 gap-4">
       <p>© 2026 KATHERINE SCHAUGHENCY</p>
@@ -992,10 +1110,10 @@
     ];
 
     const fallbackBooks = [
-      { id: "1001", title: "Dune", authorFirst: "Frank", authorLast: "Herbert", type: "hardcover", collectibility: "rare", anthology: "no", category: "Classic", themeColor: "indigo", importStatus: "imported", dateAdded: "2026-05-15", genre: "Science Fiction", edition: "first", printing: 1, signed: "signed", libraryStatus: "not-ex-library", pricePaid: 150.00 },
-      { id: "1002", title: "The Hobbit", authorFirst: "J.R.R.", authorLast: "Tolkien", type: "hardcover", collectibility: "rare", anthology: "no", category: "Classic", themeColor: "emerald", importStatus: "manual", dateAdded: "2026-05-18", genre: "Fantasy", edition: "first", printing: 2, signed: "not-signed", libraryStatus: "ex-library", pricePaid: 85.00 },
-      { id: "1003", title: "Tales of Cosmic Horror", authorFirst: "H.P.", authorLast: "Lovecraft", type: "paperback", collectibility: "not-rare", anthology: "yes", category: "Classic", themeColor: "purple", importStatus: "imported", dateAdded: "2026-05-20", genre: "Horror", edition: "not-first", printing: 5, signed: "not-signed", libraryStatus: "not-ex-library", pricePaid: 12.99 },
-      { id: "1004", title: "The Great Gatsby", authorFirst: "F. Scott", authorLast: "Fitzgerald", type: "paperback", collectibility: "not-rare", anthology: "no", category: "Classic", themeColor: "amber", importStatus: "manual", dateAdded: "2026-05-22", genre: "Classic", edition: "not-first", printing: 1, signed: "not-signed", libraryStatus: "not-ex-library", pricePaid: 15.00 }
+      { id: "1001", title: "Dune", authorFirst: "Frank", authorLast: "Herbert", type: "hardcover", collectibility: "rare", anthology: "no", category: "Classic", themeColor: "indigo", importStatus: "imported", dateAdded: "2026-05-15", genre: "Science Fiction", edition: "first", printing: 1, signed: "signed", libraryStatus: "not-ex-library", pricePaid: 150.00, isbn: "9780441172719" },
+      { id: "1002", title: "The Hobbit", authorFirst: "J.R.R.", authorLast: "Tolkien", type: "hardcover", collectibility: "rare", anthology: "no", category: "Classic", themeColor: "emerald", importStatus: "manual", dateAdded: "2026-05-18", genre: "Fantasy", edition: "first", printing: 2, signed: "not-signed", libraryStatus: "ex-library", pricePaid: 85.00, isbn: "9780345339683" },
+      { id: "1003", title: "Tales of Cosmic Horror", authorFirst: "H.P.", authorLast: "Lovecraft", type: "paperback", collectibility: "not-rare", anthology: "yes", category: "Classic", themeColor: "purple", importStatus: "imported", dateAdded: "2026-05-20", genre: "Horror", edition: "not-first", printing: 5, signed: "not-signed", libraryStatus: "not-ex-library", pricePaid: 12.99, isbn: "9781684121335" },
+      { id: "1004", title: "The Great Gatsby", authorFirst: "F. Scott", authorLast: "Fitzgerald", type: "paperback", collectibility: "not-rare", anthology: "no", category: "Classic", themeColor: "amber", importStatus: "manual", dateAdded: "2026-05-22", genre: "Classic", edition: "not-first", printing: 1, signed: "not-signed", libraryStatus: "not-ex-library", pricePaid: 15.00, isbn: "9780743273565" }
     ];
 
     let books = [];
@@ -1026,6 +1144,10 @@
     let editSelectedSigned = 'not-signed';
     let editSelectedLibraryStatus = 'not-ex-library';
 
+    // Camera Barcode Scanning stream trackers
+    let scanStream = null;
+    let scanAnimationId = null;
+
     window.addEventListener('DOMContentLoaded', async () => {
       // Safe, non-destructive routing logic
       let hash = window.location.hash || '';
@@ -1047,11 +1169,11 @@
       // Populate Genre Selector options dynamically
       populateGenreSelectors();
 
-      // 1. Recover Books from LocalStorage or Fallback
+      // Recover Books from LocalStorage or Fallback
       const savedBooks = localStorage.getItem('library_books_vanillajs_' + libraryId);
       books = savedBooks ? JSON.parse(savedBooks) : fallbackBooks;
 
-      // 2. Legacy Migration Strategy: Ingest previous root library databases seamlessly
+      // Legacy Migration Strategy: Ingest previous root library databases seamlessly
       const legacyBooks = localStorage.getItem('library_books_vanillajs');
       if (legacyBooks) {
         try {
@@ -1085,7 +1207,7 @@
       // Force-paint initial shelf UI instantly
       renderBooks();
 
-      // 3. Authenticate and Connect to Cloud Storage
+      // Authenticate and Connect to Cloud Storage
       if (typeof __firebase_config !== 'undefined') {
         try {
           const firebaseConfig = JSON.parse(__firebase_config);
@@ -1109,7 +1231,6 @@
             currentUser = credential.user;
           } catch (authError) {
             console.error("Authenticated token session verification error:", authError);
-            // Re-attempt anonymous fallback
             try {
               credential = await auth.signInAnonymously();
               currentUser = credential.user;
@@ -1153,7 +1274,7 @@
           loadOfflineFallbackOnly();
         }
       } else {
-        loadOfflineFallbackOnly();
+        loadOfflineFallbackOnly;
       }
 
       // Add-Form initial styling properties
@@ -1178,11 +1299,10 @@
       const editFormGenre = document.getElementById('editFormGenre');
 
       GENRES.forEach(g => {
-        // filter element
+        // filter element - "All" will be preselected as rendered in HTML
         const optFilter = document.createElement('option');
         optFilter.value = g;
         optFilter.textContent = g;
-        if (g === "Science Fiction") optFilter.selected = true;
         filterGenre.appendChild(optFilter);
 
         // form elements
@@ -1216,6 +1336,7 @@
         if (b.signed === undefined) { b.signed = "not-signed"; migrated = true; }
         if (b.libraryStatus === undefined) { b.libraryStatus = "not-ex-library"; migrated = true; }
         if (b.pricePaid === undefined) { b.pricePaid = 0.00; migrated = true; }
+        if (b.isbn === undefined) { b.isbn = ""; migrated = true; }
       });
       if (migrated) {
         localStorage.setItem('library_books_vanillajs_' + libraryId, JSON.stringify(books));
@@ -1223,11 +1344,8 @@
     }
 
     async function syncBooksState() {
-      // Local persistence cache
       localStorage.setItem('library_books_vanillajs_' + libraryId, JSON.stringify(books));
-      
       if (!currentUser) return; // Rule 3 Guard
-      
       if (isCloudEnabled && db) {
         try {
           const docRef = db.doc(`artifacts/${appId}/public/data/libraries/${libraryId}`);
@@ -1236,6 +1354,116 @@
           console.error("Failed to push changes to cloud document:", err);
           triggerToast("Cloud save error. Backup cached locally.", "warning");
         }
+      }
+    }
+
+    // Live Video stream camera EAN Barcode scanner modal controllers
+    async function openScanner() {
+      const modal = document.getElementById('barcodeScannerModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      
+      const video = document.getElementById('scannerVideo');
+      const errorMsg = document.getElementById('scannerError');
+      errorMsg.classList.add('hidden');
+
+      try {
+        scanStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+        });
+        video.srcObject = scanStream;
+        video.play();
+        
+        // Active native Barcode detection algorithm check
+        if ('BarcodeDetector' in window) {
+          // Native detector initialized EAN-13, EAN-8 (book standard)
+          const barcodeDetector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'code_128', 'upc_a'] });
+          startScanningLoop(barcodeDetector, video);
+        } else {
+          document.getElementById('scannerHint').innerHTML = "Tip: Native EAN-13 hardware decoding is not supported in this browser configuration.<br/><strong class='text-amber-400'>iPhone Users:</strong> Tap the input box manually, then select the camera/text scanning option in the iOS keyboard context bar!";
+        }
+      } catch (err) {
+        console.error("Camera access failed:", err);
+        errorMsg.innerHTML = "Unable to launch video capture. Please verify that camera stream permissions have been authorized for this page.";
+        errorMsg.classList.remove('hidden');
+      }
+    }
+
+    function startScanningLoop(detector, video) {
+      async function tick() {
+        if (!scanStream) return;
+        if (video.readyState === video.HAVE_ENOUGH_DATA) {
+          try {
+            const barcodes = await detector.detect(video);
+            if (barcodes.length > 0) {
+              const code = barcodes[0].rawValue;
+              handleSuccessfulScan(code);
+              return; // Stop scan animation stream loop
+            }
+          } catch (e) {
+            console.warn("Detection cycle exception:", e);
+          }
+        }
+        scanAnimationId = requestAnimationFrame(tick);
+      }
+      scanAnimationId = requestAnimationFrame(tick);
+    }
+
+    function handleSuccessfulScan(code) {
+      playBeep(); // Synth beep
+      
+      // Paint overlay success state
+      const target = document.getElementById('scannerTarget');
+      target.className = "absolute border-4 border-emerald-500 rounded-xl transition-all duration-300 w-64 h-32 flex items-center justify-center bg-emerald-500/10";
+      target.innerHTML = `<span class="text-emerald-400 font-extrabold text-sm tracking-widest animate-bounce">SUCCESS!</span>`;
+
+      setTimeout(() => {
+        const isEditing = !document.getElementById('editBookModal').classList.contains('hidden');
+        if (isEditing) {
+          document.getElementById('editFormIsbn').value = code;
+        } else {
+          document.getElementById('formIsbn').value = code;
+        }
+        triggerToast(`EAN Barcode Scanned: ${code}`, "success");
+        closeScanner();
+      }, 700);
+    }
+
+    function closeScanner() {
+      const modal = document.getElementById('barcodeScannerModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      
+      if (scanStream) {
+        scanStream.getTracks().forEach(track => track.stop());
+        scanStream = null;
+      }
+      if (scanAnimationId) {
+        cancelAnimationFrame(scanAnimationId);
+        scanAnimationId = null;
+      }
+
+      // Reset Scanner target graphics
+      const target = document.getElementById('scannerTarget');
+      target.className = "absolute border-4 border-amber-500/40 rounded-xl w-64 h-32 flex items-center justify-center bg-transparent";
+      target.innerHTML = `<div class="w-full h-0.5 bg-rose-500 animate-pulse"></div>`;
+    }
+
+    // Synthesize scan beep using standard Browser Web Audio API oscillators
+    function playBeep() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.setValueAtTime(1200.00, ctx.currentTime); 
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.12);
+      } catch (e) {
+        console.warn("Audio synthesis error:", e);
       }
     }
 
@@ -1315,7 +1543,7 @@
         btnStandard.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all";
         btnRare.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
       } else {
-        btnRare.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
+        btnRare.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all";
         btnStandard.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
       }
     }
@@ -1419,7 +1647,6 @@
       }
     }
 
-    // Anthology Setter
     function setEditFormAnthology(val) {
       editSelectedAnthology = val;
       const btnNo = document.getElementById('btnEditAnthologyNo');
@@ -1490,153 +1717,6 @@
       }
     }
 
-    // CSV Import Logic
-    function handleCSVImport(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const text = e.target.result;
-        try {
-          const rows = parseCSV(text);
-          if (rows.length < 2) {
-            triggerToast("CSV file is empty or missing headers.", "error");
-            return;
-          }
-
-          const headers = rows[0].map(h => h.trim().toLowerCase());
-          
-          const titleIdx = headers.findIndex(h => h.includes("title") || h.includes("book"));
-          const firstIdx = headers.findIndex(h => h.includes("first") || h.includes("author first") || h.includes("firstname"));
-          const lastIdx = headers.findIndex(h => h.includes("last") || h.includes("author last") || h.includes("lastname"));
-          const genreIdx = headers.findIndex(h => h.includes("genre") || h.includes("category"));
-          const bindIdx = headers.findIndex(h => h.includes("binding") || h.includes("type"));
-          const collIdx = headers.findIndex(h => h.includes("collectibility") || h.includes("rarity") || h.includes("collectable"));
-          const anthIdx = headers.findIndex(h => h.includes("anthology"));
-          const impIdx = headers.findIndex(h => h.includes("imported") || h.includes("import"));
-          const editionIdx = headers.findIndex(h => h.includes("edition"));
-          const printingIdx = headers.findIndex(h => h.includes("printing") || h.includes("print"));
-          const signedIdx = headers.findIndex(h => h.includes("signed") || h.includes("signature"));
-          const libIdx = headers.findIndex(h => h.includes("library") || h.includes("ex-library"));
-          const priceIdx = headers.findIndex(h => h.includes("price") || h.includes("paid") || h.includes("cost"));
-          const dateIdx = headers.findIndex(h => h.includes("date") || h.includes("logged") || h.includes("added"));
-
-          let importedCount = 0;
-          const newBooks = [];
-
-          for (let r = 1; r < rows.length; r++) {
-            const row = rows[r];
-            if (row.length === 0 || (row.length === 1 && row[0] === "")) continue;
-
-            const title = titleIdx !== -1 ? row[titleIdx] : row[1];
-            const authorFirst = firstIdx !== -1 ? row[firstIdx] : row[2];
-            const authorLast = lastIdx !== -1 ? row[lastIdx] : (row[3] || "");
-
-            if (!title || !authorFirst || !authorLast) continue;
-
-            let genreVal = genreIdx !== -1 ? row[genreIdx] : "Science Fiction";
-            if (!GENRES.includes(genreVal)) {
-              genreVal = "Science Fiction";
-            }
-
-            let bindingVal = "paperback";
-            const rawBind = (bindIdx !== -1 ? row[bindIdx] : "").toLowerCase();
-            if (rawBind.includes("hard") || rawBind.includes("cloth")) {
-              bindingVal = "hardcover";
-            }
-
-            let collVal = "not-rare";
-            const rawColl = (collIdx !== -1 ? row[collIdx] : "").toLowerCase();
-            if (rawColl.includes("rare") || rawColl.includes("collect") || rawColl.includes("★")) {
-              collVal = "rare";
-            }
-
-            let anthVal = "no";
-            const rawAnth = (anthIdx !== -1 ? row[anthIdx] : "").toLowerCase();
-            if (rawAnth.includes("yes") || rawAnth.includes("y") || rawAnth.includes("true")) {
-              anthVal = "yes";
-            }
-
-            let impVal = "manual";
-            const rawImp = (impIdx !== -1 ? row[impIdx] : "").toLowerCase();
-            if (rawImp.includes("yes") || rawImp.includes("imported") || rawImp.includes("y") || rawImp.includes("true")) {
-              impVal = "imported";
-            }
-
-            let editionVal = "not-first";
-            const rawEd = (editionIdx !== -1 ? row[editionIdx] : "").toLowerCase();
-            if (rawEd.includes("first") || rawEd.includes("1st")) {
-              editionVal = "first";
-            }
-
-            let printingVal = 1;
-            if (printingIdx !== -1 && row[printingIdx]) {
-              const p = parseInt(row[printingIdx], 10);
-              if (!isNaN(p)) printingVal = p;
-            }
-
-            let signedVal = "not-signed";
-            const rawSign = (signedIdx !== -1 ? row[signedIdx] : "").toLowerCase();
-            if (rawSign.includes("signed") || rawSign.includes("yes") || rawSign.includes("y")) {
-              signedVal = "signed";
-            }
-
-            let libVal = "not-ex-library";
-            const rawLib = (libIdx !== -1 ? row[libIdx] : "").toLowerCase();
-            if (rawLib.includes("ex-library") || rawLib.includes("ex") || rawLib.includes("yes") || rawLib.includes("y")) {
-              libVal = "ex-library";
-            }
-
-            let priceVal = 0.00;
-            if (priceIdx !== -1 && row[priceIdx]) {
-              const p = parseFloat(row[priceIdx].replace(/[^0-9.]/g, ''));
-              if (!isNaN(p)) priceVal = p;
-            }
-
-            const dateVal = dateIdx !== -1 && row[dateIdx] ? row[dateIdx] : new Date().toISOString().split('T')[0];
-            const randomThemeColor = THEME_COLORS[Math.floor(Math.random() * THEME_COLORS.length)].name;
-
-            newBooks.push({
-              id: (Date.now() + importedCount).toString().slice(-6),
-              title: title.trim(),
-              authorFirst: authorFirst.trim(),
-              authorLast: authorLast.trim(),
-              type: bindingVal,
-              collectibility: collVal,
-              anthology: anthVal,
-              importStatus: impVal,
-              category: "Classic",
-              genre: genreVal,
-              edition: editionVal,
-              printing: printingVal,
-              signed: signedVal,
-              libraryStatus: libVal,
-              pricePaid: priceVal,
-              themeColor: randomThemeColor,
-              dateAdded: dateVal.trim()
-            });
-            importedCount++;
-          }
-
-          if (newBooks.length === 0) {
-            triggerToast("No records matched import requirements. Check Header Name columns.", "warning");
-            return;
-          }
-
-          books = [...newBooks, ...books];
-          syncBooksState();
-          triggerToast(`Successfully imported ${newBooks.length} book volumes!`, "success");
-          renderBooks();
-        } catch (err) {
-          console.error("CSV Import Error: ", err);
-          triggerToast("Invalid CSV layout format.", "error");
-        }
-      };
-      reader.readAsText(file);
-      event.target.value = ""; // Clear file selector
-    }
-
     // Export current filtered dataset as CSV
     function exportBooksToCSV() {
       const searchQuery = document.getElementById('searchQuery').value.toLowerCase().trim();
@@ -1651,7 +1731,8 @@
 
       const processed = books.filter(b => {
         const matchesSearch = b.title.toLowerCase().includes(searchQuery) || 
-                              `${b.authorFirst} ${b.authorLast}`.toLowerCase().includes(searchQuery);
+                              `${b.authorFirst} ${b.authorLast}`.toLowerCase().includes(searchQuery) ||
+                              (b.isbn && b.isbn.includes(searchQuery));
         const matchesType = filterType === 'All' || b.type === filterType;
         const matchesCollectibility = filterCollectibility === 'All' || b.collectibility === filterCollectibility;
         const matchesAnthology = filterAnthology === 'All' || b.anthology === filterAnthology;
@@ -1669,7 +1750,7 @@
         return;
       }
 
-      const headers = ["ID", "Book Title", "Author First Name", "Author Last Name", "Category", "Binding Type", "Collectibility Level", "Anthology", "Imported?", "First Edition?", "Printing", "Signed?", "Ex-library?", "Price Paid", "Date Logged"];
+      const headers = ["ID", "Book Title", "Author First Name", "Author Last Name", "Genre", "ISBN", "Binding Type", "Collectibility Level", "Anthology", "Imported?", "First Edition?", "Printing", "Signed?", "Ex-library?", "Price Paid", "Date Logged"];
       const csvRows = [headers.join(",")];
 
       processed.forEach(b => {
@@ -1678,7 +1759,8 @@
           `"${b.title.replace(/"/g, '""')}"`,
           `"${b.authorFirst.replace(/"/g, '""')}"`,
           `"${(b.authorLast || '').replace(/"/g, '""')}"`,
-          `"${b.genre}"`,
+          `"${b.genre || "Science Fiction"}"`,
+          `"${b.isbn || ""}"`,
           `"${b.type}"`,
           `"${b.collectibility}"`,
           `"${b.anthology === 'yes' ? 'Yes' : 'No'}"`,
@@ -1700,7 +1782,7 @@
       
       const fileTimestamp = new Date().toISOString().split('T')[0];
       link.setAttribute("href", url);
-      link.setAttribute("download", `home_library_export_${fileTimestamp}.csv`);
+      link.setAttribute("download", `book_vault_export_${fileTimestamp}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -1718,6 +1800,7 @@
       const genre = document.getElementById('formGenre').value;
       const printing = parseInt(document.getElementById('formPrinting').value, 10) || 1;
       const pricePaid = parseFloat(document.getElementById('formPricePaid').value) || 0.00;
+      const isbn = document.getElementById('formIsbn').value.trim();
 
       if (!title || !authorFirst || !authorLast) {
         triggerToast("Please fill in all required form fields.", "warning");
@@ -1732,6 +1815,7 @@
         authorFirst,
         authorLast,
         genre,
+        isbn,
         type: formSelectedBinding,
         collectibility: formSelectedCollectibility,
         anthology: formSelectedAnthology,
@@ -1763,40 +1847,6 @@
       renderBooks();
     }
 
-    // Edit Modal Operators
-    function openEditModal(bookId) {
-      const book = books.find(b => b.id === bookId);
-      if (!book) return;
-
-      document.getElementById('editBookId').value = book.id;
-      document.getElementById('editFormTitle').value = book.title;
-      document.getElementById('editFormAuthorFirst').value = book.authorFirst;
-      document.getElementById('editFormAuthorLast').value = book.authorLast;
-      document.getElementById('editFormGenre').value = book.genre || "Science Fiction";
-      document.getElementById('editFormPrinting').value = book.printing || 1;
-      document.getElementById('editFormPricePaid').value = (book.pricePaid !== undefined) ? book.pricePaid : "0.00";
-
-      setEditFormBinding(book.type);
-      setEditFormCollectibility(book.collectibility);
-      setEditFormAnthology(book.anthology);
-      setEditFormImportStatus(book.importStatus || 'manual');
-      setEditFormEdition(book.edition || 'not-first');
-      setEditFormSigned(book.signed || 'not-signed');
-      setEditFormLibraryStatus(book.libraryStatus || 'not-ex-library');
-
-      closeBookModal();
-
-      const modal = document.getElementById('editBookModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-    }
-
-    function closeEditModal() {
-      const modal = document.getElementById('editBookModal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    }
-
     // Handle Edit Form Submission
     function handleEditFormSubmit(e) {
       e.preventDefault();
@@ -1810,6 +1860,7 @@
       const genre = document.getElementById('editFormGenre').value;
       const printing = parseInt(document.getElementById('editFormPrinting').value, 10) || 1;
       const pricePaid = parseFloat(document.getElementById('editFormPricePaid').value) || 0.00;
+      const isbn = document.getElementById('editFormIsbn').value.trim();
 
       if (!title || !authorFirst || !authorLast) {
         triggerToast("Please provide all required book parameters.", "warning");
@@ -1820,6 +1871,7 @@
       book.authorFirst = authorFirst;
       book.authorLast = authorLast;
       book.genre = genre;
+      book.isbn = isbn;
       book.type = editSelectedBinding;
       book.collectibility = editSelectedCollectibility;
       book.anthology = editSelectedAnthology;
@@ -1834,33 +1886,6 @@
       triggerToast(`Changes to "${title}" successfully updated!`, "success");
 
       closeEditModal();
-      renderBooks();
-    }
-
-    // Delete book volume
-    function deleteBookItem(bookId, title) {
-      books = books.filter(b => b.id !== bookId);
-      syncBooksState();
-      triggerToast(`"${title}" removed from catalog indexes.`, "info");
-      
-      closeBookModal();
-      renderBooks();
-    }
-
-    function handleFilterChange() {
-      renderBooks();
-    }
-
-    function clearSearchFilters() {
-      document.getElementById('searchQuery').value = '';
-      document.getElementById('filterType').value = 'All';
-      document.getElementById('filterCollectibility').value = 'All';
-      document.getElementById('filterAnthology').value = 'All';
-      document.getElementById('filterImportStatus').value = 'All';
-      document.getElementById('filterGenre').value = 'Science Fiction';
-      document.getElementById('filterEdition').value = 'All';
-      document.getElementById('filterSigned').value = 'All';
-      document.getElementById('filterLibraryStatus').value = 'All';
       renderBooks();
     }
 
@@ -1883,7 +1908,8 @@
 
       let processed = books.filter(b => {
         const matchesSearch = b.title.toLowerCase().includes(searchQuery) || 
-                              `${b.authorFirst} ${b.authorLast}`.toLowerCase().includes(searchQuery);
+                              `${b.authorFirst} ${b.authorLast}`.toLowerCase().includes(searchQuery) ||
+                              (b.isbn && b.isbn.includes(searchQuery));
         const matchesType = filterType === 'All' || b.type === filterType;
         const matchesCollectibility = filterCollectibility === 'All' || b.collectibility === filterCollectibility;
         const matchesAnthology = filterAnthology === 'All' || b.anthology === filterAnthology;
@@ -1918,51 +1944,68 @@
       processed.forEach(b => {
         const theme = THEME_COLORS.find(c => c.name === b.themeColor) || THEME_COLORS[0];
         const row = document.createElement('tr');
-        row.className = "hover:bg-slate-900/40 border-b border-slate-800/60 transition-colors";
+        row.className = "hover:bg-slate-900/40 border-b border-slate-800/60 transition-colors group";
         
         row.innerHTML = `
-          <td class="py-4 px-6 font-bold text-white flex items-center gap-2.5">
-            <span class="w-3 h-3 rounded-full bg-gradient-to-tr ${theme.bg} shadow-sm"></span>
+          <!-- Sticky Left frozen column 1: Book Title (wrapped, self-contained bg overlay) -->
+          <td class="sticky left-0 bg-slate-900 z-10 font-bold text-white border-r border-slate-800/80 py-4 px-6 w-[180px] min-w-[180px] max-w-[180px] whitespace-normal break-words sticky-col">
+            <span class="w-2.5 h-2.5 rounded-full bg-gradient-to-tr ${theme.bg} shadow-sm inline-block mr-2 shrink-0"></span>
             ${b.title}
           </td>
-          <td class="py-4 px-6 text-slate-300 font-medium">${b.authorFirst} ${b.authorLast}</td>
-          <td class="py-4 px-6 text-slate-300 font-medium">${b.genre || "Science Fiction"}</td>
-          <td class="py-4 px-6 text-slate-300 capitalize text-xs">${b.type}</td>
-          <td class="py-4 px-6">
+
+          <!-- Normal scrolling columns start here -->
+          <td class="py-4 px-6 text-slate-300 font-medium min-w-[140px] truncate max-w-[200px]" title="${b.authorFirst} ${b.authorLast}">
+            ${b.authorFirst} ${b.authorLast}
+          </td>
+          <td class="py-4 px-6 text-slate-300 font-medium min-w-[120px]">${b.genre || "Science Fiction"}</td>
+          <td class="py-4 px-6 text-amber-500/90 font-mono text-xs font-semibold min-w-[120px]">${b.isbn || "—"}</td>
+          <td class="py-4 px-6 text-slate-300 capitalize text-xs min-w-[110px]">${b.type}</td>
+          <td class="py-4 px-6 min-w-[120px]">
             ${b.collectibility === 'rare' 
               ? '<span class="text-amber-400 font-bold flex items-center gap-1 text-[11px]">★ Rare</span>' 
               : '<span class="text-slate-500 text-xs">Standard</span>'
             }
           </td>
-          <td class="py-4 px-6">
+          <td class="py-4 px-6 min-w-[110px]">
             ${b.edition === 'first' 
               ? '<span class="text-sky-400 font-semibold text-xs">Yes</span>' 
               : '<span class="text-slate-500 text-xs">No</span>'
             }
           </td>
-          <td class="py-4 px-6">
+          <td class="py-4 px-6 text-slate-300 min-w-[90px]">${b.printing || 1}</td>
+          <td class="py-4 px-6 min-w-[90px]">
             ${b.signed === 'signed' 
               ? '<span class="text-amber-400 font-semibold text-xs">Yes</span>' 
               : '<span class="text-slate-500 text-xs">No</span>'
             }
           </td>
-          <td class="py-4 px-6">
+          <td class="py-4 px-6 min-w-[100px]">
             ${b.libraryStatus === 'ex-library' 
               ? '<span class="text-rose-400 font-semibold text-xs">Yes</span>' 
               : '<span class="text-slate-500 text-xs">No</span>'
             }
           </td>
-          <td class="py-4 px-6 text-emerald-400 font-bold text-xs">$${(b.pricePaid !== undefined ? parseFloat(b.pricePaid).toFixed(2) : "0.00")}</td>
-          <td class="py-4 px-6 text-right">
-            <div class="flex items-center justify-end gap-2">
-              <button onclick="openBookModalById('${b.id}')" class="text-xs text-amber-500 hover:text-amber-400 font-bold px-2.5 py-1 bg-amber-500/10 hover:bg-amber-500/20 rounded-lg transition-all">
+          <td class="py-4 px-6 text-emerald-400 font-bold text-xs min-w-[100px]">$${(b.pricePaid !== undefined ? parseFloat(b.pricePaid).toFixed(2) : "0.00")}</td>
+          <td class="py-4 px-6 text-slate-400 capitalize text-xs min-w-[100px]">${b.anthology === 'yes' ? 'Yes' : 'No'}</td>
+          <td class="py-4 px-6 min-w-[100px]">
+            ${b.importStatus === 'imported' 
+              ? '<span class="text-emerald-400 font-bold">Yes</span>' 
+              : '<span class="text-slate-500">No</span>'
+            }
+          </td>
+          <td class="py-4 px-6 text-slate-500 text-xs min-w-[120px]">${b.dateAdded}</td>
+
+          <!-- Actions Column at the very end of the row -->
+          <td class="py-4 px-6 text-right whitespace-nowrap min-w-[140px]">
+            <div class="flex items-center justify-end gap-1.5">
+              <button onclick="openBookModalById('${b.id}')" class="text-[10px] text-amber-500 hover:text-amber-400 font-bold px-2 py-1 bg-amber-500/10 hover:bg-amber-500/20 rounded-lg transition-all" title="View details">
                 Details
               </button>
-              <button onclick="openEditModal('${b.id}')" class="text-xs text-sky-400 hover:text-sky-300 font-bold px-2.5 py-1 bg-sky-500/10 hover:bg-sky-500/20 rounded-lg transition-all flex items-center gap-1">
+              <button onclick="openEditModal('${b.id}')" class="text-[10px] text-sky-400 hover:text-sky-300 font-bold px-2 py-1 bg-sky-500/10 hover:bg-sky-500/20 rounded-lg transition-all" title="Edit book">
                 Edit
               </button>
-              <button onclick="deleteBookItem('${b.id}', '${b.title}')" class="text-slate-500 hover:text-rose-400 p-1.5 hover:bg-rose-500/10 rounded-lg transition-all" title="Remove Record">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+              <button onclick="deleteBookItem('${b.id}', '${b.title}')" class="text-slate-500 hover:text-rose-400 p-1 hover:bg-rose-500/10 rounded-lg transition-all" title="Remove Record">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
               </button>
             </div>
           </td>
@@ -2029,6 +2072,7 @@
       document.getElementById('modalSigned').textContent = book.signed === 'signed' ? 'Yes' : 'No';
       document.getElementById('modalLibraryStatus').textContent = book.libraryStatus === 'ex-library' ? 'Yes' : 'No';
       document.getElementById('modalPricePaid').textContent = `$${(book.pricePaid !== undefined ? parseFloat(book.pricePaid).toFixed(2) : "0.00")}`;
+      document.getElementById('modalIsbn').textContent = book.isbn || "—";
       document.getElementById('modalDate').textContent = book.dateAdded;
       document.getElementById('modalId').textContent = book.id;
 
@@ -2075,3 +2119,4 @@
 </body>
 </html>
 
+```
