@@ -83,7 +83,7 @@
         </div>
         <div>
           <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-            The Book Vault <span class="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/25 px-2 py-0.5 rounded-full font-normal">Collector’s Edition v5.4</span>
+            The Book Vault <span class="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/25 px-2 py-0.5 rounded-full font-normal">Collector’s Edition v5.5</span>
           </h1>
         </div>
       </div>
@@ -171,7 +171,7 @@
     </div>
 
     <!-- ============================================= -->
-    <!-- CATALOG NEW BOOK FORM -->
+    <!-- CATALOG NEW VOLUME CARD (HOMEPAGE TOP) -->
     <!-- ============================================= -->
     <div class="bg-slate-900/30 rounded-2xl border border-slate-800 p-6 md:p-8 space-y-6">
       <div>
@@ -287,7 +287,7 @@
 
           <!-- Printing Numeric -->
           <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Printing (Numeric Number)</label>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Printing</label>
             <input
               type="number"
               id="formPrinting"
@@ -312,11 +312,10 @@
             />
           </div>
 
-          <!-- ISBN Input Field with built-in Camera Barcode scanning -->
+          <!-- ISBN Input Field -->
           <div>
             <div class="flex justify-between items-center mb-2">
-              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">ISBN (10 or 13 digits)</label>
-              <span class="text-[10px] text-amber-500 font-medium hidden sm:inline">Supports Camera Scan</span>
+              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">ISBN</label>
             </div>
             <div class="relative">
               <input
@@ -324,9 +323,7 @@
                 id="formIsbn"
                 placeholder="e.g. 9780441172719"
                 class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 pl-4 pr-24 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-slate-100 font-mono placeholder-slate-600 transition-all text-sm"
-                title="iPhone Users: Tap input directly and select 'Scan Text' to use apple live scanning!"
               />
-              <!-- Scanning Trigger -->
               <button
                 type="button"
                 onclick="openScanner()"
@@ -340,23 +337,64 @@
                 <span class="text-[10px] font-extrabold uppercase">Scan</span>
               </button>
             </div>
-            <p class="text-[9px] text-slate-500 mt-1 leading-tight">
-              iPhone Tip: Tap input, then tap the keyboard icon and choose <strong class="text-amber-500/80">"Scan Text"</strong>.
-            </p>
           </div>
         </div>
 
-        <!-- Row 3: Binding, Collectibility, Anthology, and Import status toggles -->
+        <!-- Row 3: Publisher, Year Published, and Bookshelves -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Publisher -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Publisher <span class="text-rose-500">*</span></label>
+            <input
+              type="text"
+              id="formPublisher"
+              required
+              placeholder="e.g. Tor Books"
+              class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 px-4 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-slate-100 placeholder-slate-650 transition-all text-sm font-medium"
+            />
+          </div>
+
+          <!-- Year Published -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Year Published <span class="text-rose-500">*</span></label>
+            <input
+              type="number"
+              id="formYearPublished"
+              required
+              min="1000"
+              max="2100"
+              placeholder="e.g. 1965"
+              class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 px-4 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-slate-100 transition-all text-sm font-medium"
+            />
+          </div>
+
+          <!-- Bookshelves -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Bookshelf Location <span class="text-rose-500">*</span></label>
+            <input
+              type="text"
+              id="formBookshelves"
+              required
+              placeholder="e.g. Living Room Shelf A"
+              class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 px-4 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-slate-100 placeholder-slate-655 transition-all text-sm font-medium"
+            />
+          </div>
+        </div>
+
+        <!-- Row 4: Binding, Collectibility, Anthology, and Import status toggles -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <!-- Binding Type -->
+          <!-- Binding Type (Updated with 3 categories) -->
           <div>
             <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Binding Type</label>
-            <div class="grid grid-cols-2 gap-2">
-              <button type="button" onclick="setFormBinding('paperback')" id="btnBindPaperback" class="py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all">
-                Paperback
+            <div class="grid grid-cols-3 gap-2">
+              <button type="button" onclick="setFormBinding('hardcover')" id="btnBindHardcover" class="py-2.5 px-1 rounded-xl font-bold text-[10px] border transition-all truncate">
+                Hardcover
               </button>
-              <button type="button" onclick="setFormBinding('hardcover')" id="btnBindHardcover" class="py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all">
-                Hard Cover
+              <button type="button" onclick="setFormBinding('trade-paperback')" id="btnBindTrade" class="py-2.5 px-1 rounded-xl font-bold text-[10px] border transition-all truncate">
+                Trade PB
+              </button>
+              <button type="button" onclick="setFormBinding('mass-market-paperback')" id="btnBindMass" class="py-2.5 px-1 rounded-xl font-bold text-[10px] border transition-all truncate">
+                Mass PB
               </button>
             </div>
           </div>
@@ -401,7 +439,7 @@
           </div>
         </div>
 
-        <!-- Row 4: Edition, Signed by Author, Library Status -->
+        <!-- Row 5: Edition, Signed by Author, Library Status -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <!-- Edition toggle -->
           <div>
@@ -474,7 +512,7 @@
             type="text"
             id="searchQuery"
             oninput="handleFilterChange()"
-            placeholder="Search catalog by book name, author, or ISBN..."
+            placeholder="Search catalog by book title, author, ISBN, publisher, or bookshelf..."
             class="w-full pl-10 pr-12 py-3 bg-slate-950/80 border border-slate-800 rounded-xl focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-slate-100 placeholder-slate-500 transition-all"
           />
           <button 
@@ -542,13 +580,14 @@
           </select>
         </div>
 
-        <!-- Binding Type Filter -->
+        <!-- Binding Type Filter (Updated) -->
         <div>
           <label class="block text-xs text-slate-400 mb-1 font-medium">Binding Type</label>
           <select id="filterType" onchange="handleFilterChange()" class="w-full bg-slate-950/80 border border-slate-800 text-[11px] rounded-xl px-2.5 py-2 text-slate-300 focus:border-amber-500 outline-none">
             <option value="All">All Bindings</option>
-            <option value="hardcover">Hard Cover</option>
-            <option value="paperback">Paperback</option>
+            <option value="hardcover">Hardcover</option>
+            <option value="trade-paperback">Trade Paperback</option>
+            <option value="mass-market-paperback">Mass Market Paperback</option>
           </select>
         </div>
 
@@ -616,9 +655,9 @@
         </div>
       </div>
 
-      <!-- Scrollable table container supporting custom width thresholds -->
+      <!-- Scrollable table container supporting expanded column schema -->
       <div class="overflow-x-auto custom-scrollbar">
-        <table class="w-full text-left text-xs text-slate-300 border-collapse border-b border-slate-800 min-w-[1550px]">
+        <table class="w-full text-left text-xs text-slate-300 border-collapse border-b border-slate-800 min-w-[1950px]">
           <thead class="bg-slate-950 text-slate-400 uppercase tracking-wider font-semibold">
             <tr>
               <!-- Sticky Column: Book Title is the ONLY frozen header column -->
@@ -628,8 +667,14 @@
               <th class="py-3.5 px-6 min-w-[140px]">Author</th>
               <th class="py-3.5 px-6 min-w-[120px]">Genre</th>
               <th class="py-3.5 px-6 min-w-[120px]">ISBN</th>
-              <th class="py-3.5 px-6 min-w-[110px]">Binding Type</th>
+              <th class="py-3.5 px-6 min-w-[140px]">Binding Type</th>
               <th class="py-3.5 px-6 min-w-[120px]">Collectibility</th>
+              
+              <!-- Three New Core Columns -->
+              <th class="py-3.5 px-6 min-w-[150px]">Publisher</th>
+              <th class="py-3.5 px-6 min-w-[110px]">Year</th>
+              <th class="py-3.5 px-6 min-w-[180px]">Bookshelf Location</th>
+
               <th class="py-3.5 px-6 min-w-[110px]">First Edition?</th>
               <th class="py-3.5 px-6 min-w-[90px]">Printing</th>
               <th class="py-3.5 px-6 min-w-[90px]">Signed?</th>
@@ -681,13 +726,25 @@
       </div>
 
       <!-- Core Metadata Rows -->
-      <div class="p-6 space-y-6">
+      <div class="p-6 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
         <div class="space-y-4">
           <h4 class="text-xs text-slate-500 font-bold uppercase tracking-wider">Registration Profile Parameters</h4>
           <div class="space-y-3">
             <div class="flex items-center justify-between text-sm py-2 border-b border-slate-800/80">
               <span class="text-slate-400">Binding Finish</span>
               <span id="modalBinding" class="text-white font-bold capitalize">-</span>
+            </div>
+            <div class="flex items-center justify-between text-sm py-2 border-b border-slate-800/80 font-semibold text-xs">
+              <span class="text-slate-400">Publisher</span>
+              <span id="modalPublisher" class="text-white font-bold">-</span>
+            </div>
+            <div class="flex items-center justify-between text-sm py-2 border-b border-slate-800/80 font-semibold text-xs">
+              <span class="text-slate-400">Year Published</span>
+              <span id="modalYearPublished" class="text-white font-bold">-</span>
+            </div>
+            <div class="flex items-center justify-between text-sm py-2 border-b border-slate-800/80 font-semibold text-xs">
+              <span class="text-slate-400">Bookshelf Location</span>
+              <span id="modalBookshelves" class="text-amber-400 font-bold">-</span>
             </div>
             <div class="flex items-center justify-between text-sm py-2 border-b border-slate-800/80">
               <span class="text-slate-400">Collectibility</span>
@@ -902,7 +959,7 @@
               <button
                 type="button"
                 onclick="openScanner()"
-                class="absolute right-2 top-2 px-2 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500 hover:text-slate-950 hover:border-transparent transition-all flex items-center gap-1"
+                class="absolute right-2 top-2 px-2 py-1.5 rounded-lg bg-amber-500/10 border-amber-500/30 text-amber-400 hover:bg-amber-500 hover:text-slate-950 hover:border-transparent transition-all flex items-center gap-1"
                 title="Scan barcode with camera"
               >
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
@@ -915,17 +972,58 @@
           </div>
         </div>
 
-        <!-- Row 3: Binding, Collectibility, Anthology, and Import status toggles -->
+        <!-- Row 3: Publisher, Year Published, and Bookshelves (Edit Modal) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Publisher -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Publisher <span class="text-rose-500">*</span></label>
+            <input
+              type="text"
+              id="editFormPublisher"
+              required
+              class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 px-4 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-slate-100 transition-all text-sm font-medium"
+            />
+          </div>
+
+          <!-- Year Published -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Year Published <span class="text-rose-500">*</span></label>
+            <input
+              type="number"
+              id="editFormYearPublished"
+              required
+              min="1000"
+              max="2100"
+              class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 px-4 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-slate-100 transition-all text-sm font-medium"
+            />
+          </div>
+
+          <!-- Bookshelves -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Bookshelf Location <span class="text-rose-500">*</span></label>
+            <input
+              type="text"
+              id="editFormBookshelves"
+              required
+              class="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 px-4 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none text-slate-100 transition-all text-sm font-medium"
+            />
+          </div>
+        </div>
+
+        <!-- Row 4: Binding, Collectibility, Anthology, and Import status toggles (Edit Modal) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <!-- Binding Type -->
+          <!-- Binding Type (Updated with 3 categories) -->
           <div>
             <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Binding Type</label>
-            <div class="grid grid-cols-2 gap-2">
-              <button type="button" onclick="setEditFormBinding('paperback')" id="btnEditBindPaperback" class="py-2.5 px-4 rounded-xl font-bold text-xs border transition-all">
-                Paperback
+            <div class="grid grid-cols-3 gap-2">
+              <button type="button" onclick="setEditFormBinding('hardcover')" id="btnEditBindHardcover" class="py-2.5 px-1 rounded-xl font-bold text-[10px] border transition-all truncate">
+                Hardcover
               </button>
-              <button type="button" onclick="setEditFormBinding('hardcover')" id="btnEditBindHardcover" class="py-2.5 px-4 rounded-xl font-bold text-xs border transition-all">
-                Hard Cover
+              <button type="button" onclick="setEditFormBinding('trade-paperback')" id="btnEditBindTrade" class="py-2.5 px-1 rounded-xl font-bold text-[10px] border transition-all truncate">
+                Trade PB
+              </button>
+              <button type="button" onclick="setEditFormBinding('mass-market-paperback')" id="btnEditBindMass" class="py-2.5 px-1 rounded-xl font-bold text-[10px] border transition-all truncate">
+                Mass PB
               </button>
             </div>
           </div>
@@ -970,7 +1068,7 @@
           </div>
         </div>
 
-        <!-- Row 4: Edition, Signed by Author, Library Status -->
+        <!-- Row 5: Edition, Signed by Author, Library Status (Edit Modal) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <!-- Edition toggle -->
           <div>
@@ -1054,13 +1152,12 @@
       <div id="scannerError" class="hidden text-xs text-rose-400 bg-rose-950/30 border border-rose-500/35 p-3 rounded-xl leading-relaxed text-center font-medium"></div>
 
       <p class="text-[10px] text-slate-500 text-center leading-relaxed">
-        Requires a modern browser (Safari 17+, Chrome, or Firefox) with rear-facing autofocus camera stream capabilities.
+        Requires a modern browser with rear-facing autofocus camera stream capabilities.
       </p>
     </div>
   </div>
 
-  
-      <!-- --- FOOTER --- -->
+  <!-- --- FOOTER --- -->
   <footer class="border-t border-slate-900 py-8 mt-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500 gap-4">
       <p>© 2026 KATHERINE SCHAUGHENCY</p>
@@ -1074,7 +1171,7 @@
     </div>
   </footer>
 
-  
+
   <!-- CATALYST SYSTEM MODAL (DATA RESET DIALOG) -->
   <div id="systemResetModal" class="hidden fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-4">
@@ -1110,10 +1207,10 @@
     ];
 
     const fallbackBooks = [
-      { id: "1001", title: "Dune", authorFirst: "Frank", authorLast: "Herbert", type: "hardcover", collectibility: "rare", anthology: "no", category: "Classic", themeColor: "indigo", importStatus: "imported", dateAdded: "2026-05-15", genre: "Science Fiction", edition: "first", printing: 1, signed: "signed", libraryStatus: "not-ex-library", pricePaid: 150.00, isbn: "9780441172719" },
-      { id: "1002", title: "The Hobbit", authorFirst: "J.R.R.", authorLast: "Tolkien", type: "hardcover", collectibility: "rare", anthology: "no", category: "Classic", themeColor: "emerald", importStatus: "manual", dateAdded: "2026-05-18", genre: "Fantasy", edition: "first", printing: 2, signed: "not-signed", libraryStatus: "ex-library", pricePaid: 85.00, isbn: "9780345339683" },
-      { id: "1003", title: "Tales of Cosmic Horror", authorFirst: "H.P.", authorLast: "Lovecraft", type: "paperback", collectibility: "not-rare", anthology: "yes", category: "Classic", themeColor: "purple", importStatus: "imported", dateAdded: "2026-05-20", genre: "Horror", edition: "not-first", printing: 5, signed: "not-signed", libraryStatus: "not-ex-library", pricePaid: 12.99, isbn: "9781684121335" },
-      { id: "1004", title: "The Great Gatsby", authorFirst: "F. Scott", authorLast: "Fitzgerald", type: "paperback", collectibility: "not-rare", anthology: "no", category: "Classic", themeColor: "amber", importStatus: "manual", dateAdded: "2026-05-22", genre: "Classic", edition: "not-first", printing: 1, signed: "not-signed", libraryStatus: "not-ex-library", pricePaid: 15.00, isbn: "9780743273565" }
+      { id: "1001", title: "Dune", authorFirst: "Frank", authorLast: "Herbert", type: "hardcover", collectibility: "rare", anthology: "no", category: "Classic", themeColor: "indigo", importStatus: "imported", dateAdded: "2026-05-15", genre: "Science Fiction", edition: "first", printing: 1, signed: "signed", libraryStatus: "not-ex-library", pricePaid: 150.00, isbn: "9780441172719", publisher: "Chilton Books", yearPublished: 1965, bookshelves: "Living Room Shelf A" },
+      { id: "1002", title: "The Hobbit", authorFirst: "J.R.R.", authorLast: "Tolkien", type: "hardcover", collectibility: "rare", anthology: "no", category: "Classic", themeColor: "emerald", importStatus: "manual", dateAdded: "2026-05-18", genre: "Fantasy", edition: "first", printing: 2, signed: "not-signed", libraryStatus: "ex-library", pricePaid: 85.00, isbn: "9780345339683", publisher: "George Allen & Unwin", yearPublished: 1937, bookshelves: "Vault Safe Alpha" },
+      { id: "1003", title: "Tales of Cosmic Horror", authorFirst: "H.P.", authorLast: "Lovecraft", type: "trade-paperback", collectibility: "not-rare", anthology: "yes", category: "Classic", themeColor: "purple", importStatus: "imported", dateAdded: "2026-05-20", genre: "Horror", edition: "not-first", printing: 5, signed: "not-signed", libraryStatus: "not-ex-library", pricePaid: 12.99, isbn: "9781684121335", publisher: "Canterbury Classics", yearPublished: 2017, bookshelves: "Bedroom Study Rack" },
+      { id: "1004", title: "The Great Gatsby", authorFirst: "F. Scott", authorLast: "Fitzgerald", type: "mass-market-paperback", collectibility: "not-rare", anthology: "no", category: "Classic", themeColor: "amber", importStatus: "manual", dateAdded: "2026-05-22", genre: "Classic", edition: "not-first", printing: 1, signed: "not-signed", libraryStatus: "not-ex-library", pricePaid: 15.00, isbn: "9780743273565", publisher: "Charles Scribner's Sons", yearPublished: 1925, bookshelves: "Master Bedside Rack" }
     ];
 
     let books = [];
@@ -1127,7 +1224,7 @@
     let currentUser = null;
 
     // Form selection variables (Add Form)
-    let formSelectedBinding = 'paperback';
+    let formSelectedBinding = 'hardcover';
     let formSelectedCollectibility = 'not-rare';
     let formSelectedAnthology = 'no';
     let formSelectedImportStatus = 'manual';
@@ -1136,7 +1233,7 @@
     let formSelectedLibraryStatus = 'not-ex-library';
 
     // Form selection variables (Edit Form)
-    let editSelectedBinding = 'paperback';
+    let editSelectedBinding = 'hardcover';
     let editSelectedCollectibility = 'not-rare';
     let editSelectedAnthology = 'no';
     let editSelectedImportStatus = 'manual';
@@ -1153,7 +1250,7 @@
       let hash = window.location.hash || '';
       if (hash.includes('id=')) {
         libraryId = hash.split('id=')[1].split('&')[0];
-        localStorage.setItem('home_library_current_id', libraryId); // Keep active ID synced
+        localStorage.setItem('home_library_current_id', libraryId);
       } else {
         libraryId = localStorage.getItem('home_library_current_id');
         if (!libraryId) {
@@ -1162,7 +1259,7 @@
         }
       }
 
-      // Render the shareable URL
+      // Render shareable URL
       const currentUrl = window.location.origin + window.location.pathname + '#id=' + libraryId;
       document.getElementById('shareableLinkInput').value = currentUrl;
 
@@ -1188,19 +1285,6 @@
         }
       }
 
-      // Self-healing migration from legacy 'rarity' variable name to new 'collectibility' key
-      let migrated = false;
-      books.forEach(b => {
-        if (b.rarity !== undefined && b.collectibility === undefined) {
-          b.collectibility = b.rarity;
-          delete b.rarity;
-          migrated = true;
-        }
-      });
-      if (migrated) {
-        localStorage.setItem('library_books_vanillajs_' + libraryId, JSON.stringify(books));
-      }
-
       // Pre-run standard migrations
       migrateLocalSchemaData();
 
@@ -1220,7 +1304,7 @@
           document.getElementById('cloudStatusBadge').textContent = 'Connecting...';
           document.getElementById('cloudStatusBadge').className = 'inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/25 animate-pulse';
 
-          // Authenticated Session Verification (Rule 3 Compliance: Token check priority)
+          // Authenticated Session Verification
           let credential;
           try {
             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -1244,7 +1328,7 @@
             return;
           }
 
-          // Single-document Firestore Stream Hook (Rule 1 & Rule 2 compliant)
+          // Single-document Firestore Stream Hook
           const docRef = db.doc(`artifacts/${appId}/public/data/libraries/${libraryId}`);
           docRef.onSnapshot((docSnap) => {
             if (!currentUser) return; // Rule 3 Guard
@@ -1257,11 +1341,9 @@
                 renderBooks();
               }
             } else {
-              // Populate empty remote documents with legacy-migrated local arrays
               docRef.set({ books: books }).catch(err => console.error("Cloud seed rejected:", err));
             }
             
-            // Mark cloud active
             document.getElementById('cloudStatusBadge').textContent = 'Cloud Active';
             document.getElementById('cloudStatusBadge').className = 'inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/25';
           }, (err) => {
@@ -1274,11 +1356,11 @@
           loadOfflineFallbackOnly();
         }
       } else {
-        loadOfflineFallbackOnly;
+        loadOfflineFallbackOnly();
       }
 
       // Add-Form initial styling properties
-      setFormBinding('paperback');
+      setFormBinding('hardcover');
       setFormCollectibility('not-rare');
       setFormAnthology('no');
       setFormImportStatus('manual');
@@ -1292,34 +1374,7 @@
       document.getElementById('cloudStatusBadge').className = 'inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-850 text-slate-400';
     }
 
-    // Populate Option values to selectors
-    function populateGenreSelectors() {
-      const filterGenre = document.getElementById('filterGenre');
-      const formGenre = document.getElementById('formGenre');
-      const editFormGenre = document.getElementById('editFormGenre');
-
-      GENRES.forEach(g => {
-        // filter element - "All" will be preselected as rendered in HTML
-        const optFilter = document.createElement('option');
-        optFilter.value = g;
-        optFilter.textContent = g;
-        filterGenre.appendChild(optFilter);
-
-        // form elements
-        const optForm = document.createElement('option');
-        optForm.value = g;
-        optForm.textContent = g;
-        if (g === "Science Fiction") optForm.selected = true;
-        formGenre.appendChild(optForm);
-
-        const optEdit = document.createElement('option');
-        optEdit.value = g;
-        optEdit.textContent = g;
-        editFormGenre.appendChild(optEdit);
-      });
-    }
-
-    // Data schema upgrades
+    // Data schema upgrades (includes newly added structural schema variables)
     function migrateLocalSchemaData() {
       let migrated = false;
       books.forEach(b => {
@@ -1329,7 +1384,12 @@
           delete b.rarity;
           migrated = true;
         }
-        // Seed default parameters for older/legacy data structures
+        // Normalize outdated binding formats
+        if (b.type === 'paperback') {
+          b.type = 'trade-paperback';
+          migrated = true;
+        }
+        // Seed default parameters for new columns
         if (b.genre === undefined) { b.genre = "Science Fiction"; migrated = true; }
         if (b.edition === undefined) { b.edition = "not-first"; migrated = true; }
         if (b.printing === undefined) { b.printing = 1; migrated = true; }
@@ -1337,6 +1397,11 @@
         if (b.libraryStatus === undefined) { b.libraryStatus = "not-ex-library"; migrated = true; }
         if (b.pricePaid === undefined) { b.pricePaid = 0.00; migrated = true; }
         if (b.isbn === undefined) { b.isbn = ""; migrated = true; }
+        
+        // Publisher, Year Published, and Bookshelves migrations
+        if (b.publisher === undefined) { b.publisher = "Unknown Publisher"; migrated = true; }
+        if (b.yearPublished === undefined) { b.yearPublished = 2026; migrated = true; }
+        if (b.bookshelves === undefined) { b.bookshelves = "Main Bookshelf"; migrated = true; }
       });
       if (migrated) {
         localStorage.setItem('library_books_vanillajs_' + libraryId, JSON.stringify(books));
@@ -1374,9 +1439,7 @@
         video.srcObject = scanStream;
         video.play();
         
-        // Active native Barcode detection algorithm check
         if ('BarcodeDetector' in window) {
-          // Native detector initialized EAN-13, EAN-8 (book standard)
           const barcodeDetector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'code_128', 'upc_a'] });
           startScanningLoop(barcodeDetector, video);
         } else {
@@ -1398,7 +1461,7 @@
             if (barcodes.length > 0) {
               const code = barcodes[0].rawValue;
               handleSuccessfulScan(code);
-              return; // Stop scan animation stream loop
+              return;
             }
           } catch (e) {
             console.warn("Detection cycle exception:", e);
@@ -1410,9 +1473,7 @@
     }
 
     function handleSuccessfulScan(code) {
-      playBeep(); // Synth beep
-      
-      // Paint overlay success state
+      playBeep();
       const target = document.getElementById('scannerTarget');
       target.className = "absolute border-4 border-emerald-500 rounded-xl transition-all duration-300 w-64 h-32 flex items-center justify-center bg-emerald-500/10";
       target.innerHTML = `<span class="text-emerald-400 font-extrabold text-sm tracking-widest animate-bounce">SUCCESS!</span>`;
@@ -1443,13 +1504,11 @@
         scanAnimationId = null;
       }
 
-      // Reset Scanner target graphics
       const target = document.getElementById('scannerTarget');
       target.className = "absolute border-4 border-amber-500/40 rounded-xl w-64 h-32 flex items-center justify-center bg-transparent";
       target.innerHTML = `<div class="w-full h-0.5 bg-rose-500 animate-pulse"></div>`;
     }
 
-    // Synthesize scan beep using standard Browser Web Audio API oscillators
     function playBeep() {
       try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1467,71 +1526,23 @@
       }
     }
 
-    function copyShareableLink() {
-      const input = document.getElementById('shareableLinkInput');
-      input.select();
-      try {
-        document.execCommand('copy');
-        triggerToast("Shareable link copied to clipboard!");
-      } catch (err) {
-        triggerToast("Copy failed. Highlight path input box to capture manually.", "warning");
-      }
-    }
-
-    function startVoiceCapture(inputId, listeningSpanId) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) {
-        triggerToast("Voice recognition is not supported in this browser. Please try Chrome or Safari.", "error");
-        return;
-      }
-
-      const inputElement = document.getElementById(inputId);
-      const listeningSpan = document.getElementById(listeningSpanId);
-      
-      const recognition = new SpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.lang = 'en-US';
-
-      recognition.onstart = () => {
-        listeningSpan.classList.remove('hidden');
-        triggerToast("Voice engine active. Speak clearly now...", "info");
-      };
-
-      recognition.onend = () => {
-        listeningSpan.classList.add('hidden');
-      };
-
-      recognition.onerror = (e) => {
-        console.error("Speech Recognition Error: ", e);
-        triggerToast("Could not capture spoken input. Try again.", "error");
-        listeningSpan.classList.add('hidden');
-      };
-
-      recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        if (transcript) {
-          const capitalized = transcript.trim().replace(/(^\w|\s\w)/g, m => m.toUpperCase());
-          inputElement.value = capitalized;
-          triggerToast(`Captured: "${capitalized}"`);
-        }
-      };
-
-      recognition.start();
-    }
-
+    // Toggle Styles (Add Form)
     function setFormBinding(val) {
       formSelectedBinding = val;
-      const btnPaperback = document.getElementById('btnBindPaperback');
       const btnHardcover = document.getElementById('btnBindHardcover');
+      const btnTrade = document.getElementById('btnBindTrade');
+      const btnMass = document.getElementById('btnBindMass');
 
-      if (val === 'paperback') {
-        btnPaperback.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all";
-        btnHardcover.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
-      } else {
-        btnHardcover.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all";
-        btnPaperback.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
-      }
+      const inactiveClass = "py-2.5 px-1 rounded-xl font-bold text-[10px] border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all truncate";
+      const activeClass = "py-2.5 px-1 rounded-xl font-bold text-[10px] border bg-amber-500/10 border-amber-500 text-amber-400 transition-all truncate";
+
+      btnHardcover.className = inactiveClass;
+      btnTrade.className = inactiveClass;
+      btnMass.className = inactiveClass;
+
+      if (val === 'hardcover') btnHardcover.className = activeClass;
+      if (val === 'trade-paperback') btnTrade.className = activeClass;
+      if (val === 'mass-market-paperback') btnMass.className = activeClass;
     }
 
     function setFormCollectibility(val) {
@@ -1618,19 +1629,23 @@
       }
     }
 
-    // Edit Form Setters
+    // Toggle Styles (Edit Modal Form)
     function setEditFormBinding(val) {
       editSelectedBinding = val;
-      const btnPaperback = document.getElementById('btnEditBindPaperback');
       const btnHardcover = document.getElementById('btnEditBindHardcover');
+      const btnTrade = document.getElementById('btnEditBindTrade');
+      const btnMass = document.getElementById('btnEditBindMass');
 
-      if (val === 'paperback') {
-        btnPaperback.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all";
-        btnHardcover.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
-      } else {
-        btnHardcover.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-amber-500/10 border-amber-500 text-amber-400 transition-all";
-        btnPaperback.className = "py-2.5 px-4 rounded-xl font-bold text-xs border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all";
-      }
+      const inactiveClass = "py-2.5 px-1 rounded-xl font-bold text-[10px] border bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white transition-all truncate";
+      const activeClass = "py-2.5 px-1 rounded-xl font-bold text-[10px] border bg-amber-500/10 border-amber-500 text-amber-400 transition-all truncate";
+
+      btnHardcover.className = inactiveClass;
+      btnTrade.className = inactiveClass;
+      btnMass.className = inactiveClass;
+
+      if (val === 'hardcover') btnHardcover.className = activeClass;
+      if (val === 'trade-paperback') btnTrade.className = activeClass;
+      if (val === 'mass-market-paperback') btnMass.className = activeClass;
     }
 
     function setEditFormCollectibility(val) {
@@ -1717,77 +1732,166 @@
       }
     }
 
-    // Export current filtered dataset as CSV
-    function exportBooksToCSV() {
-      const searchQuery = document.getElementById('searchQuery').value.toLowerCase().trim();
-      const filterType = document.getElementById('filterType').value;
-      const filterCollectibility = document.getElementById('filterCollectibility').value;
-      const filterAnthology = document.getElementById('filterAnthology').value;
-      const filterImportStatus = document.getElementById('filterImportStatus').value;
-      const filterGenre = document.getElementById('filterGenre').value;
-      const filterEdition = document.getElementById('filterEdition').value;
-      const filterSigned = document.getElementById('filterSigned').value;
-      const filterLibraryStatus = document.getElementById('filterLibraryStatus').value;
+    // CSV File Importer (Ingests new schema attributes)
+    function handleCSVImport(event) {
+      const file = event.target.files[0];
+      if (!file) return;
 
-      const processed = books.filter(b => {
-        const matchesSearch = b.title.toLowerCase().includes(searchQuery) || 
-                              `${b.authorFirst} ${b.authorLast}`.toLowerCase().includes(searchQuery) ||
-                              (b.isbn && b.isbn.includes(searchQuery));
-        const matchesType = filterType === 'All' || b.type === filterType;
-        const matchesCollectibility = filterCollectibility === 'All' || b.collectibility === filterCollectibility;
-        const matchesAnthology = filterAnthology === 'All' || b.anthology === filterAnthology;
-        const matchesImportStatus = filterImportStatus === 'All' || b.importStatus === filterImportStatus;
-        const matchesGenre = filterGenre === 'All' || b.genre === filterGenre;
-        const matchesEdition = filterEdition === 'All' || b.edition === filterEdition;
-        const matchesSigned = filterSigned === 'All' || b.signed === filterSigned;
-        const matchesLibraryStatus = filterLibraryStatus === 'All' || b.libraryStatus === filterLibraryStatus;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const text = e.target.result;
+        try {
+          const rows = parseCSV(text);
+          if (rows.length < 2) {
+            triggerToast("CSV file is empty or missing headers.", "error");
+            return;
+          }
 
-        return matchesSearch && matchesType && matchesCollectibility && matchesAnthology && matchesImportStatus && matchesGenre && matchesEdition && matchesSigned && matchesLibraryStatus;
-      });
+          const headers = rows[0].map(h => h.trim().toLowerCase());
+          
+          const titleIdx = headers.findIndex(h => h.includes("title") || h.includes("book"));
+          const firstIdx = headers.findIndex(h => h.includes("first") || h.includes("author first") || h.includes("firstname"));
+          const lastIdx = headers.findIndex(h => h.includes("last") || h.includes("author last") || h.includes("lastname"));
+          const genreIdx = headers.findIndex(h => h.includes("genre") || h.includes("category"));
+          const bindIdx = headers.findIndex(h => h.includes("binding") || h.includes("type"));
+          const collIdx = headers.findIndex(h => h.includes("collectibility") || h.includes("rarity") || h.includes("collectable"));
+          const anthIdx = headers.findIndex(h => h.includes("anthology"));
+          const impIdx = headers.findIndex(h => h.includes("imported") || h.includes("import"));
+          const editionIdx = headers.findIndex(h => h.includes("edition"));
+          const printingIdx = headers.findIndex(h => h.includes("printing") || h.includes("print"));
+          const signedIdx = headers.findIndex(h => h.includes("signed") || h.includes("signature"));
+          const libIdx = headers.findIndex(h => h.includes("library") || h.includes("ex-library"));
+          const priceIdx = headers.findIndex(h => h.includes("price") || h.includes("paid") || h.includes("cost"));
+          const pubIdx = headers.findIndex(h => h.includes("publisher") || h.includes("pub"));
+          const yearIdx = headers.findIndex(h => h.includes("year") || h.includes("published"));
+          const shelfIdx = headers.findIndex(h => h.includes("shelf") || h.includes("bookshelves") || h.includes("location"));
+          const isbnIdx = headers.findIndex(h => h.includes("isbn"));
+          const dateIdx = headers.findIndex(h => h.includes("date") || h.includes("logged") || h.includes("added"));
 
-      if (processed.length === 0) {
-        triggerToast("No books found matching criteria to export.", "warning");
-        return;
-      }
+          let importedCount = 0;
+          const newBooks = [];
 
-      const headers = ["ID", "Book Title", "Author First Name", "Author Last Name", "Genre", "ISBN", "Binding Type", "Collectibility Level", "Anthology", "Imported?", "First Edition?", "Printing", "Signed?", "Ex-library?", "Price Paid", "Date Logged"];
-      const csvRows = [headers.join(",")];
+          for (let r = 1; r < rows.length; r++) {
+            const row = rows[r];
+            if (row.length === 0 || (row.length === 1 && row[0] === "")) continue;
 
-      processed.forEach(b => {
-        const row = [
-          `"${b.id}"`,
-          `"${b.title.replace(/"/g, '""')}"`,
-          `"${b.authorFirst.replace(/"/g, '""')}"`,
-          `"${(b.authorLast || '').replace(/"/g, '""')}"`,
-          `"${b.genre || "Science Fiction"}"`,
-          `"${b.isbn || ""}"`,
-          `"${b.type}"`,
-          `"${b.collectibility}"`,
-          `"${b.anthology === 'yes' ? 'Yes' : 'No'}"`,
-          `"${b.importStatus === 'imported' ? 'Yes' : 'No'}"`,
-          `"${b.edition === 'first' ? 'Yes' : 'No'}"`,
-          `"${b.printing}"`,
-          `"${b.signed === 'signed' ? 'Yes' : 'No'}"`,
-          `"${b.libraryStatus === 'ex-library' ? 'Yes' : 'No'}"`,
-          `"${b.pricePaid}"`,
-          `"${b.dateAdded}"`
-        ];
-        csvRows.push(row.join(","));
-      });
+            const title = titleIdx !== -1 ? row[titleIdx] : row[1];
+            const authorFirst = firstIdx !== -1 ? row[firstIdx] : row[2];
+            const authorLast = lastIdx !== -1 ? row[lastIdx] : (row[3] || "");
 
-      const csvString = csvRows.join("\n");
-      const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      
-      const fileTimestamp = new Date().toISOString().split('T')[0];
-      link.setAttribute("href", url);
-      link.setAttribute("download", `book_vault_export_${fileTimestamp}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+            if (!title || !authorFirst || !authorLast) continue;
 
-      triggerToast(`Successfully exported ${processed.length} volumes to CSV!`, "success");
+            let genreVal = genreIdx !== -1 ? row[genreIdx] : "Science Fiction";
+            if (!GENRES.includes(genreVal)) {
+              genreVal = "Science Fiction";
+            }
+
+            let bindingVal = "hardcover";
+            const rawBind = (bindIdx !== -1 ? row[bindIdx] : "").toLowerCase();
+            if (rawBind.includes("trade")) {
+              bindingVal = "trade-paperback";
+            } else if (rawBind.includes("mass") || rawBind.includes("pocket")) {
+              bindingVal = "mass-market-paperback";
+            }
+
+            let collVal = "not-rare";
+            const rawColl = (collIdx !== -1 ? row[collIdx] : "").toLowerCase();
+            if (rawColl.includes("rare") || rawColl.includes("collect") || rawColl.includes("★")) {
+              collVal = "rare";
+            }
+
+            let anthVal = "no";
+            const rawAnth = (anthIdx !== -1 ? row[anthIdx] : "").toLowerCase();
+            if (rawAnth.includes("yes") || rawAnth.includes("y") || rawAnth.includes("true")) {
+              anthVal = "yes";
+            }
+
+            let impVal = "manual";
+            const rawImp = (impIdx !== -1 ? row[impIdx] : "").toLowerCase();
+            if (rawImp.includes("yes") || rawImp.includes("imported") || rawImp.includes("y") || rawImp.includes("true")) {
+              impVal = "imported";
+            }
+
+            let editionVal = "not-first";
+            const rawEd = (editionIdx !== -1 ? row[editionIdx] : "").toLowerCase();
+            if (rawEd.includes("first") || rawEd.includes("1st")) {
+              editionVal = "first";
+            }
+
+            let printingVal = 1;
+            if (printingIdx !== -1 && row[printingIdx]) {
+              const p = parseInt(row[printingIdx], 10);
+              if (!isNaN(p)) printingVal = p;
+            }
+
+            let signedVal = "not-signed";
+            const rawSign = (signedIdx !== -1 ? row[signedIdx] : "").toLowerCase();
+            if (rawSign.includes("signed") || rawSign.includes("yes") || rawSign.includes("y")) {
+              signedVal = "signed";
+            }
+
+            let libVal = "not-ex-library";
+            const rawLib = (libIdx !== -1 ? row[libIdx] : "").toLowerCase();
+            if (rawLib.includes("ex-library") || rawLib.includes("ex") || rawLib.includes("yes") || rawLib.includes("y")) {
+              libVal = "ex-library";
+            }
+
+            let priceVal = 0.00;
+            if (priceIdx !== -1 && row[priceIdx]) {
+              const p = parseFloat(row[priceIdx].replace(/[^0-9.]/g, ''));
+              if (!isNaN(p)) priceVal = p;
+            }
+
+            const publisherVal = pubIdx !== -1 ? row[pubIdx] : "Unknown Publisher";
+            const yearPublishedVal = yearIdx !== -1 ? (parseInt(row[yearIdx], 10) || 2026) : 2026;
+            const bookshelvesVal = shelfIdx !== -1 ? row[shelfIdx] : "Main Bookshelf";
+            const isbnVal = isbnIdx !== -1 ? row[isbnIdx] : "";
+
+            const dateVal = dateIdx !== -1 && row[dateIdx] ? row[dateIdx] : new Date().toISOString().split('T')[0];
+            const randomThemeColor = THEME_COLORS[Math.floor(Math.random() * THEME_COLORS.length)].name;
+
+            newBooks.push({
+              id: (Date.now() + importedCount).toString().slice(-6),
+              title: title.trim(),
+              authorFirst: authorFirst.trim(),
+              authorLast: authorLast.trim(),
+              type: bindingVal,
+              collectibility: collVal,
+              anthology: anthVal,
+              importStatus: impVal,
+              category: "Classic",
+              genre: genreVal,
+              edition: editionVal,
+              printing: printingVal,
+              signed: signedVal,
+              libraryStatus: libVal,
+              pricePaid: priceVal,
+              publisher: publisherVal,
+              yearPublished: yearPublishedVal,
+              bookshelves: bookshelvesVal,
+              isbn: isbnVal,
+              themeColor: randomThemeColor,
+              dateAdded: dateVal.trim()
+            });
+            importedCount++;
+          }
+
+          if (newBooks.length === 0) {
+            triggerToast("No records matched import requirements.", "warning");
+            return;
+          }
+
+          books = [...newBooks, ...books];
+          syncBooksState();
+          triggerToast(`Successfully imported ${newBooks.length} book volumes!`, "success");
+          renderBooks();
+        } catch (err) {
+          console.error("CSV Import Error: ", err);
+          triggerToast("Invalid CSV layout format.", "error");
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = "";
     }
 
     // Save volume
@@ -1801,8 +1905,12 @@
       const printing = parseInt(document.getElementById('formPrinting').value, 10) || 1;
       const pricePaid = parseFloat(document.getElementById('formPricePaid').value) || 0.00;
       const isbn = document.getElementById('formIsbn').value.trim();
+      
+      const publisher = document.getElementById('formPublisher').value.trim();
+      const yearPublished = parseInt(document.getElementById('formYearPublished').value, 10) || 2026;
+      const bookshelves = document.getElementById('formBookshelves').value.trim();
 
-      if (!title || !authorFirst || !authorLast) {
+      if (!title || !authorFirst || !authorLast || !publisher || !yearPublished || !bookshelves) {
         triggerToast("Please fill in all required form fields.", "warning");
         return;
       }
@@ -1825,6 +1933,9 @@
         signed: formSelectedSigned,
         libraryStatus: formSelectedLibraryStatus,
         pricePaid,
+        publisher,
+        yearPublished,
+        bookshelves,
         category: "Classic",
         themeColor: randomThemeColor,
         dateAdded: new Date().toISOString().split('T')[0]
@@ -1836,7 +1947,7 @@
 
       // Reset Form fields
       document.getElementById('addBookForm').reset();
-      setFormBinding('paperback');
+      setFormBinding('hardcover');
       setFormCollectibility('not-rare');
       setFormAnthology('no');
       setFormImportStatus('manual');
@@ -1845,6 +1956,45 @@
       setFormLibraryStatus('not-ex-library');
 
       renderBooks();
+    }
+
+    // Edit Modal Operators
+    function openEditModal(bookId) {
+      const book = books.find(b => b.id === bookId);
+      if (!book) return;
+
+      document.getElementById('editBookId').value = book.id;
+      document.getElementById('editFormTitle').value = book.title;
+      document.getElementById('editFormAuthorFirst').value = book.authorFirst;
+      document.getElementById('editFormAuthorLast').value = book.authorLast;
+      document.getElementById('editFormGenre').value = book.genre || "Science Fiction";
+      document.getElementById('editFormPrinting').value = book.printing || 1;
+      document.getElementById('editFormPricePaid').value = (book.pricePaid !== undefined) ? book.pricePaid : "0.00";
+      document.getElementById('editFormIsbn').value = book.isbn || "";
+      
+      document.getElementById('editFormPublisher').value = book.publisher || "";
+      document.getElementById('editFormYearPublished').value = book.yearPublished || 2026;
+      document.getElementById('editFormBookshelves').value = book.bookshelves || "";
+
+      setEditFormBinding(book.type || 'hardcover');
+      setEditFormCollectibility(book.collectibility);
+      setEditFormAnthology(book.anthology);
+      setEditFormImportStatus(book.importStatus || 'manual');
+      setEditFormEdition(book.edition || 'not-first');
+      setEditFormSigned(book.signed || 'not-signed');
+      setEditFormLibraryStatus(book.libraryStatus || 'not-ex-library');
+
+      closeBookModal();
+
+      const modal = document.getElementById('editBookModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeEditModal() {
+      const modal = document.getElementById('editBookModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
     }
 
     // Handle Edit Form Submission
@@ -1861,8 +2011,12 @@
       const printing = parseInt(document.getElementById('editFormPrinting').value, 10) || 1;
       const pricePaid = parseFloat(document.getElementById('editFormPricePaid').value) || 0.00;
       const isbn = document.getElementById('editFormIsbn').value.trim();
+      
+      const publisher = document.getElementById('editFormPublisher').value.trim();
+      const yearPublished = parseInt(document.getElementById('editFormYearPublished').value, 10) || 2026;
+      const bookshelves = document.getElementById('editFormBookshelves').value.trim();
 
-      if (!title || !authorFirst || !authorLast) {
+      if (!title || !authorFirst || !authorLast || !publisher || !yearPublished || !bookshelves) {
         triggerToast("Please provide all required book parameters.", "warning");
         return;
       }
@@ -1881,11 +2035,42 @@
       book.signed = editSelectedSigned;
       book.libraryStatus = editSelectedLibraryStatus;
       book.pricePaid = pricePaid;
+      
+      book.publisher = publisher;
+      book.yearPublished = yearPublished;
+      book.bookshelves = bookshelves;
 
       syncBooksState();
       triggerToast(`Changes to "${title}" successfully updated!`, "success");
 
       closeEditModal();
+      renderBooks();
+    }
+
+    // Delete book volume
+    function deleteBookItem(bookId, title) {
+      books = books.filter(b => b.id !== bookId);
+      syncBooksState();
+      triggerToast(`"${title}" removed from catalog indexes.`, "info");
+      
+      closeBookModal();
+      renderBooks();
+    }
+
+    function handleFilterChange() {
+      renderBooks();
+    }
+
+    function clearSearchFilters() {
+      document.getElementById('searchQuery').value = '';
+      document.getElementById('filterType').value = 'All';
+      document.getElementById('filterCollectibility').value = 'All';
+      document.getElementById('filterAnthology').value = 'All';
+      document.getElementById('filterImportStatus').value = 'All';
+      document.getElementById('filterGenre').value = 'All';
+      document.getElementById('filterEdition').value = 'All';
+      document.getElementById('filterSigned').value = 'All';
+      document.getElementById('filterLibraryStatus').value = 'All';
       renderBooks();
     }
 
@@ -1909,7 +2094,9 @@
       let processed = books.filter(b => {
         const matchesSearch = b.title.toLowerCase().includes(searchQuery) || 
                               `${b.authorFirst} ${b.authorLast}`.toLowerCase().includes(searchQuery) ||
-                              (b.isbn && b.isbn.includes(searchQuery));
+                              (b.isbn && b.isbn.includes(searchQuery)) ||
+                              (b.publisher && b.publisher.toLowerCase().includes(searchQuery)) ||
+                              (b.bookshelves && b.bookshelves.toLowerCase().includes(searchQuery));
         const matchesType = filterType === 'All' || b.type === filterType;
         const matchesCollectibility = filterCollectibility === 'All' || b.collectibility === filterCollectibility;
         const matchesAnthology = filterAnthology === 'All' || b.anthology === filterAnthology;
@@ -1946,8 +2133,12 @@
         const row = document.createElement('tr');
         row.className = "hover:bg-slate-900/40 border-b border-slate-800/60 transition-colors group";
         
+        let displayType = "Hardcover";
+        if (b.type === 'trade-paperback') displayType = "Trade PB";
+        if (b.type === 'mass-market-paperback') displayType = "Mass PB";
+
         row.innerHTML = `
-          <!-- Sticky Left frozen column 1: Book Title (wrapped, self-contained bg overlay) -->
+          <!-- Sticky Left frozen column 1: Book Title -->
           <td class="sticky left-0 bg-slate-900 z-10 font-bold text-white border-r border-slate-800/80 py-4 px-6 w-[180px] min-w-[180px] max-w-[180px] whitespace-normal break-words sticky-col">
             <span class="w-2.5 h-2.5 rounded-full bg-gradient-to-tr ${theme.bg} shadow-sm inline-block mr-2 shrink-0"></span>
             ${b.title}
@@ -1959,13 +2150,19 @@
           </td>
           <td class="py-4 px-6 text-slate-300 font-medium min-w-[120px]">${b.genre || "Science Fiction"}</td>
           <td class="py-4 px-6 text-amber-500/90 font-mono text-xs font-semibold min-w-[120px]">${b.isbn || "—"}</td>
-          <td class="py-4 px-6 text-slate-300 capitalize text-xs min-w-[110px]">${b.type}</td>
+          <td class="py-4 px-6 text-slate-300 capitalize text-xs min-w-[140px]">${displayType}</td>
           <td class="py-4 px-6 min-w-[120px]">
             ${b.collectibility === 'rare' 
               ? '<span class="text-amber-400 font-bold flex items-center gap-1 text-[11px]">★ Rare</span>' 
               : '<span class="text-slate-500 text-xs">Standard</span>'
             }
           </td>
+          
+          <!-- Three New Column Rows -->
+          <td class="py-4 px-6 text-slate-300 font-medium min-w-[150px] truncate max-w-[180px]" title="${b.publisher || "—"}">${b.publisher || "—"}</td>
+          <td class="py-4 px-6 text-slate-300 min-w-[110px]">${b.yearPublished || "—"}</td>
+          <td class="py-4 px-6 text-amber-400 font-medium min-w-[180px] truncate max-w-[200px]" title="${b.bookshelves || "—"}">${b.bookshelves || "—"}</td>
+
           <td class="py-4 px-6 min-w-[110px]">
             ${b.edition === 'first' 
               ? '<span class="text-sky-400 font-semibold text-xs">Yes</span>' 
@@ -2060,11 +2257,20 @@
       const modal = document.getElementById('selectedBookModal');
       const theme = THEME_COLORS.find(c => c.name === book.themeColor) || THEME_COLORS[0];
 
+      let displayType = "Hardcover";
+      if (book.type === 'trade-paperback') displayType = "Trade Paperback";
+      if (book.type === 'mass-market-paperback') displayType = "Mass Market Paperback";
+
       document.getElementById('modalSpineHeader').className = `p-8 bg-gradient-to-b ${theme.bg} border-b border-slate-800 text-center space-y-3 relative`;
       document.getElementById('modalGenreLabel').textContent = book.genre || 'Classic';
       document.getElementById('modalTitle').textContent = book.title;
       document.getElementById('modalAuthor').textContent = `By ${book.authorFirst} ${book.authorLast}`;
-      document.getElementById('modalBinding').textContent = book.type;
+      document.getElementById('modalBinding').textContent = displayType;
+      
+      document.getElementById('modalPublisher').textContent = book.publisher || "—";
+      document.getElementById('modalYearPublished').textContent = book.yearPublished || "—";
+      document.getElementById('modalBookshelves').textContent = book.bookshelves || "—";
+
       document.getElementById('modalAnthology').textContent = book.anthology === 'yes' ? 'Yes' : 'No';
       document.getElementById('modalImportStatus').textContent = book.importStatus === 'imported' ? 'Yes' : 'No';
       document.getElementById('modalEdition').textContent = book.edition === 'first' ? 'Yes' : 'No';
