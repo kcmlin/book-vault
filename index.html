@@ -171,7 +171,7 @@
     </div>
 
     <!-- ============================================= -->
-    <!-- CATALOG NEW VOLUME CARD (HOMEPAGE TOP) -->
+    <!-- CATALOG NEW VOLUME CARD -->
     <!-- ============================================= -->
     <div class="bg-slate-900/30 rounded-2xl border border-slate-800 p-6 md:p-8 space-y-6">
       <div>
@@ -534,7 +534,7 @@
         </div>
       </div>
 
-      <!-- Filter Grid (Expanded with new parameters) -->
+      <!-- Filter Grid -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2">
         <!-- Genre Filter -->
         <div>
@@ -665,7 +665,7 @@
               <th class="py-3.5 px-6 min-w-[140px]">Binding Type</th>
               <th class="py-3.5 px-6 min-w-[120px]">Collectibility</th>
               
-              <!-- New Optional Columns -->
+              <!-- Optional Columns -->
               <th class="py-3.5 px-6 min-w-[150px]">Publisher</th>
               <th class="py-3.5 px-6 min-w-[110px]">Year</th>
               <th class="py-3.5 px-6 min-w-[180px]">Bookshelf Location</th>
@@ -1161,7 +1161,6 @@
     </div>
   </footer>
 
-  
   <!-- CATALYST SYSTEM MODAL (DATA RESET DIALOG) -->
   <div id="systemResetModal" class="hidden fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-4">
@@ -1294,8 +1293,8 @@
       // Force-paint initial shelf UI instantly
       renderBooks();
 
-      // Authenticate and Connect to Cloud Storage
-      if (typeof __firebase_config !== 'undefined') {
+      // Authenticate and Connect to Cloud Storage safely (Shields up for Adblockers)
+      if (typeof __firebase_config !== 'undefined' && typeof firebase !== 'undefined') {
         try {
           const firebaseConfig = JSON.parse(__firebase_config);
           const app = firebase.initializeApp(firebaseConfig);
@@ -1373,8 +1372,8 @@
     });
 
     function loadOfflineFallbackOnly() {
-      document.getElementById('cloudStatusBadge').textContent = 'Local Storage Only';
-      document.getElementById('cloudStatusBadge').className = 'inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-850 text-slate-400';
+      document.getElementById('cloudStatusBadge').textContent = 'Offline Mode Active';
+      document.getElementById('cloudStatusBadge').className = 'inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/25';
     }
 
     // Populate Option values to selectors
@@ -1384,13 +1383,11 @@
       const editFormGenre = document.getElementById('editFormGenre');
 
       GENRES.forEach(g => {
-        // filter element - "All" will be preselected as rendered in HTML
         const optFilter = document.createElement('option');
         optFilter.value = g;
         optFilter.textContent = g;
         filterGenre.appendChild(optFilter);
 
-        // form elements
         const optForm = document.createElement('option');
         optForm.value = g;
         optForm.textContent = g;
@@ -1442,9 +1439,7 @@
       // Local persistence cache
       localStorage.setItem('library_books_vanillajs_' + libraryId, JSON.stringify(books));
       
-      if (!currentUser) return; // Rule 3 Guard
-      
-      if (isCloudEnabled && db) {
+      if (isCloudEnabled && db && currentUser) {
         try {
           const docRef = db.doc(`artifacts/${appId}/public/data/libraries/${libraryId}`);
           await docRef.set({ books: books }, { merge: true });
@@ -1686,7 +1681,6 @@
       }
     }
 
-    // Signed & Library edit selectors
     function setEditFormSigned(val) {
       editSelectedSigned = val;
       const btnYes = document.getElementById('btnEditSignedYes');
@@ -1715,125 +1709,327 @@
       }
     }
 
-    // Save volume
-    function handleFormSubmit(e) {
-      e.preventDefault();
-      
-      const title = document.getElementById('formTitle').value.trim();
-      const authorFirst = document.getElementById('formAuthorFirst').value.trim();
-      const authorLast = document.getElementById('formAuthorLast').value.trim();
-      
-      // Optional Elements Fallbacks
-      const genre = document.getElementById('formGenre').value;
-      const printingRaw = document.getElementById('formPrinting').value;
-      const printing = printingRaw !== "" ? parseInt(printingRaw, 10) : 1;
-      const priceRaw = document.getElementById('formPricePaid').value;
-      const pricePaid = priceRaw !== "" ? parseFloat(priceRaw) : 0.00;
-      const isbn = document.getElementById('formIsbn').value.trim();
-      const publisher = document.getElementById('formPublisher').value.trim();
-      const yearRaw = document.getElementById('formYearPublished').value;
-      const yearPublished = yearRaw !== "" ? parseInt(yearRaw, 10) : "";
-      const bookshelves = document.getElementById('formBookshelves').value.trim();
+    // Native CSV File Parser
+    function parseCSV(text) {
+      const lines = [];
+      let row = [""];
+      lines.push(row);
+      let i = 0, char = '', insideQuote = false;
 
-      if (!title || !authorFirst || !authorLast) {
-        triggerToast("Please fill in Book Title and Author names.", "warning");
+      while (i < text.length) {
+        char = text[i];
+        if (char === '"') {
+          if (insideQuote && text[i+1] === '"') {
+            row[row.length - 1] += '"';
+            i++;
+          } else {
+            insideQuote = !insideQuote;
+          }
+        } else if (char === ',' && !insideQuote) {
+          row.push('');
+        } else if ((char === '\r' || char === '\n') && !insideQuote) {
+          if (char === '\r' && text[i+1] === '\n') {
+            i++;
+          }
+          row = [''];
+          lines.push(row);
+        } else {
+          row[row.length - 1] += char;
+        }
+        i++;
+      }
+      return lines.filter(r => r.length > 1 || (r.length === 1 && r[0] !== ''));
+    }
+
+    // CSV Import Logic
+    function handleCSVImport(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const text = e.target.result;
+        try {
+          const rows = parseCSV(text);
+          if (rows.length < 2) {
+            triggerToast("CSV file is empty or missing headers.", "error");
+            return;
+          }
+
+          const headers = rows[0].map(h => h.trim().toLowerCase());
+          
+          const titleIdx = headers.findIndex(h => h.includes("title") || h.includes("book"));
+          const firstIdx = headers.findIndex(h => h.includes("first") || h.includes("author first") || h.includes("firstname"));
+          const lastIdx = headers.findIndex(h => h.includes("last") || h.includes("author last") || h.includes("lastname"));
+          const genreIdx = headers.findIndex(h => h.includes("genre") || h.includes("category"));
+          const bindIdx = headers.findIndex(h => h.includes("binding") || h.includes("type"));
+          const collIdx = headers.findIndex(h => h.includes("collectibility") || h.includes("rarity") || h.includes("collectable"));
+          const anthologyIdx = headers.findIndex(h => h.includes("anthology"));
+          const importedIdx = headers.findIndex(h => h.includes("imported") || h.includes("import"));
+          const editionIdx = headers.findIndex(h => h.includes("edition"));
+          const printingIdx = headers.findIndex(h => h.includes("printing") || h.includes("print"));
+          const signedIdx = headers.findIndex(h => h.includes("signed") || h.includes("signature"));
+          const libIdx = headers.findIndex(h => h.includes("library") || h.includes("ex-library"));
+          const priceIdx = headers.findIndex(h => h.includes("price") || h.includes("paid") || h.includes("cost"));
+          const pubIdx = headers.findIndex(h => h.includes("publisher") || h.includes("pub"));
+          const yearIdx = headers.findIndex(h => h.includes("year") || h.includes("published"));
+          const shelfIdx = headers.findIndex(h => h.includes("shelf") || h.includes("bookshelves") || h.includes("location"));
+          const isbnIdx = headers.findIndex(h => h.includes("isbn"));
+          const dateIdx = headers.findIndex(h => h.includes("date") || h.includes("logged") || h.includes("added"));
+
+          let importedCount = 0;
+          const newBooks = [];
+
+          for (let r = 1; r < rows.length; r++) {
+            const row = rows[r];
+            if (row.length === 0 || (row.length === 1 && row[0] === "")) continue;
+
+            const title = titleIdx !== -1 ? row[titleIdx] : row[1];
+            const authorFirst = firstIdx !== -1 ? row[firstIdx] : row[2];
+            const authorLast = lastIdx !== -1 ? row[lastIdx] : (row[3] || "");
+
+            if (!title || !authorFirst || !authorLast) continue;
+
+            let genreVal = genreIdx !== -1 ? row[genreIdx] : "Science Fiction";
+            if (!GENRES.includes(genreVal)) {
+              genreVal = "Science Fiction";
+            }
+
+            let bindingVal = "hardcover";
+            const rawBind = (bindIdx !== -1 ? row[bindIdx] : "").toLowerCase();
+            if (rawBind.includes("trade")) {
+              bindingVal = "trade-paperback";
+            } else if (rawBind.includes("mass") || rawBind.includes("pocket")) {
+              bindingVal = "mass-market-paperback";
+            }
+
+            let collVal = "not-rare";
+            const rawColl = (collIdx !== -1 ? row[collIdx] : "").toLowerCase();
+            if (rawColl.includes("rare") || rawColl.includes("collect") || rawColl.includes("★")) {
+              collVal = "rare";
+            }
+
+            let anthologyVal = "no";
+            const rawAnth = (anthologyIdx !== -1 ? row[anthologyIdx] : "").toLowerCase();
+            if (rawAnth.includes("yes") || rawAnth.includes("y") || rawAnth.includes("true")) {
+              anthologyVal = "yes";
+            }
+
+            let importedVal = "manual";
+            const rawImp = (importedIdx !== -1 ? row[importedIdx] : "").toLowerCase();
+            if (rawImp.includes("yes") || rawImp.includes("imported") || rawImp.includes("y") || rawImp.includes("true")) {
+              importedVal = "imported";
+            }
+
+            let editionVal = "not-first";
+            const rawEd = (editionIdx !== -1 ? row[editionIdx] : "").toLowerCase();
+            if (rawEd.includes("first") || rawEd.includes("1st")) {
+              editionVal = "first";
+            }
+
+            let printingVal = 1;
+            if (printingIdx !== -1 && row[printingIdx]) {
+              const p = parseInt(row[printingIdx], 10);
+              if (!isNaN(p)) printingVal = p;
+            }
+
+            let signedVal = "not-signed";
+            const rawSign = (signedIdx !== -1 ? row[signedIdx] : "").toLowerCase();
+            if (rawSign.includes("signed") || rawSign.includes("yes") || rawSign.includes("y")) {
+              signedVal = "signed";
+            }
+
+            let libVal = "not-ex-library";
+            const rawLib = (libIdx !== -1 ? row[libIdx] : "").toLowerCase();
+            if (rawLib.includes("ex-library") || rawLib.includes("ex") || rawLib.includes("yes") || rawLib.includes("y")) {
+              libVal = "ex-library";
+            }
+
+            let priceVal = 0.00;
+            if (priceIdx !== -1 && row[priceIdx]) {
+              const p = parseFloat(row[priceIdx].replace(/[^0-9.]/g, ''));
+              if (!isNaN(p)) priceVal = p;
+            }
+
+            const publisherVal = pubIdx !== -1 ? row[pubIdx] : "";
+            const yearPublishedVal = yearIdx !== -1 ? (parseInt(row[yearIdx], 10) || "") : "";
+            const bookshelvesVal = shelfIdx !== -1 ? row[shelfIdx] : "";
+            const isbnVal = isbnIdx !== -1 ? row[isbnIdx] : "";
+
+            const dateVal = dateIdx !== -1 && row[dateIdx] ? row[dateIdx] : new Date().toISOString().split('T')[0];
+            const randomThemeColor = THEME_COLORS[Math.floor(Math.random() * THEME_COLORS.length)].name;
+
+            newBooks.push({
+              id: (Date.now() + importedCount).toString().slice(-6),
+              title: title.trim(),
+              authorFirst: authorFirst.trim(),
+              authorLast: authorLast.trim(),
+              type: bindingVal,
+              collectibility: collVal,
+              anthology: anthologyVal,
+              importStatus: importedVal,
+              category: "Classic",
+              genre: genreVal,
+              edition: editionVal,
+              printing: printingVal,
+              signed: signedVal,
+              libraryStatus: libVal,
+              pricePaid: priceVal,
+              publisher: publisherVal,
+              yearPublished: yearPublishedVal,
+              bookshelves: bookshelvesVal,
+              isbn: isbnVal,
+              themeColor: randomThemeColor,
+              dateAdded: dateVal.trim()
+            });
+            importedCount++;
+          }
+
+          if (newBooks.length === 0) {
+            triggerToast("No records matched import requirements.", "warning");
+            return;
+          }
+
+          books = [...newBooks, ...books];
+          syncBooksState();
+          triggerToast(`Successfully imported ${newBooks.length} book volumes!`, "success");
+          renderBooks();
+        } catch (err) {
+          console.error("CSV Import Error: ", err);
+          triggerToast("Invalid CSV layout format.", "error");
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = "";
+    }
+
+    // Export current filtered dataset as CSV (Bulletproofed with Explicit Type Casting String conversions)
+    function exportBooksToCSV() {
+      const searchQuery = document.getElementById('searchQuery').value.toLowerCase().trim();
+      const filterType = document.getElementById('filterType').value;
+      const filterCollectibility = document.getElementById('filterCollectibility').value;
+      const filterAnthology = document.getElementById('filterAnthology').value;
+      const filterImportStatus = document.getElementById('filterImportStatus').value;
+      const filterGenre = document.getElementById('filterGenre').value;
+      const filterEdition = document.getElementById('filterEdition').value;
+      const filterSigned = document.getElementById('filterSigned').value;
+      const filterLibraryStatus = document.getElementById('filterLibraryStatus').value;
+
+      const processed = books.filter(b => {
+        const matchesSearch = b.title.toLowerCase().includes(searchQuery) || 
+                              `${b.authorFirst} ${b.authorLast}`.toLowerCase().includes(searchQuery) ||
+                              (b.isbn && b.isbn.includes(searchQuery)) ||
+                              (b.publisher && b.publisher.toLowerCase().includes(searchQuery)) ||
+                              (b.bookshelves && b.bookshelves.toLowerCase().includes(searchQuery));
+        const matchesType = filterType === 'All' || b.type === filterType;
+        const matchesCollectibility = filterCollectibility === 'All' || b.collectibility === filterCollectibility;
+        const matchesAnthology = filterAnthology === 'All' || b.anthology === filterAnthology;
+        const matchesImportStatus = filterImportStatus === 'All' || b.importStatus === filterImportStatus;
+        const matchesGenre = filterGenre === 'All' || b.genre === filterGenre;
+        const matchesEdition = filterEdition === 'All' || b.edition === filterEdition;
+        const matchesSigned = filterSigned === 'All' || b.signed === filterSigned;
+        const matchesLibraryStatus = filterLibraryStatus === 'All' || b.libraryStatus === filterLibraryStatus;
+
+        return matchesSearch && matchesType && matchesCollectibility && matchesAnthology && matchesImportStatus && matchesGenre && matchesEdition && matchesSigned && matchesLibraryStatus;
+      });
+
+      if (processed.length === 0) {
+        triggerToast("No books found matching criteria to export.", "warning");
         return;
       }
 
-      const randomThemeColor = THEME_COLORS[Math.floor(Math.random() * THEME_COLORS.length)].name;
+      const headers = ["ID", "Book Title", "Author First Name", "Author Last Name", "Genre", "ISBN", "Binding Type", "Collectibility Level", "Publisher", "Year Published", "Bookshelf Location", "Anthology", "Imported?", "First Edition?", "Printing", "Signed?", "Ex-library?", "Price Paid", "Date Logged"];
+      const csvRows = [headers.join(",")];
 
-      const bookPayload = {
-        id: Date.now().toString().slice(-6),
-        title,
-        authorFirst,
-        authorLast,
-        genre,
-        isbn,
-        type: formSelectedBinding,
-        collectibility: formSelectedCollectibility,
-        anthology: formSelectedAnthology,
-        importStatus: formSelectedImportStatus,
-        edition: formSelectedEdition,
-        printing,
-        signed: formSelectedSigned,
-        libraryStatus: formSelectedLibraryStatus,
-        pricePaid,
-        publisher,
-        yearPublished,
-        bookshelves,
-        category: "Classic",
-        themeColor: randomThemeColor,
-        dateAdded: new Date().toISOString().split('T')[0]
-      };
+      processed.forEach(b => {
+        // String() wrapper ensures numeric/missing values do not throw a .replace runtime error
+        const cleanId = String(b.id || '').replace(/"/g, '""');
+        const cleanTitle = String(b.title || '').replace(/"/g, '""');
+        const cleanAuthorFirst = String(b.authorFirst || '').replace(/"/g, '""');
+        const cleanAuthorLast = String(b.authorLast || '').replace(/"/g, '""');
+        const cleanGenre = String(b.genre || 'Science Fiction').replace(/"/g, '""');
+        const cleanIsbn = String(b.isbn || '').replace(/"/g, '""');
+        const cleanType = String(b.type || 'hardcover').replace(/"/g, '""');
+        const cleanCollectibility = String(b.collectibility || 'not-rare').replace(/"/g, '""');
+        const cleanPublisher = String(b.publisher || '').replace(/"/g, '""');
+        const cleanYear = String(b.yearPublished || '').replace(/"/g, '""');
+        const cleanBookshelves = String(b.bookshelves || '').replace(/"/g, '""');
+        const cleanAnthology = b.anthology === 'yes' ? 'Yes' : 'No';
+        const cleanImported = b.importStatus === 'imported' ? 'Yes' : 'No';
+        const cleanEdition = b.edition === 'first' ? 'Yes' : 'No';
+        const cleanPrinting = String(b.printing || 1).replace(/"/g, '""');
+        const cleanSigned = b.signed === 'signed' ? 'Yes' : 'No';
+        const cleanLibraryStatus = b.libraryStatus === 'ex-library' ? 'Yes' : 'No';
+        const cleanPrice = String(b.pricePaid || '0.00').replace(/"/g, '""');
+        const cleanDate = String(b.dateAdded || '').replace(/"/g, '""');
 
-      books.unshift(bookPayload);
+        const row = [
+          `"${cleanId}"`,
+          `"${cleanTitle}"`,
+          `"${cleanAuthorFirst}"`,
+          `"${cleanAuthorLast}"`,
+          `"${cleanGenre}"`,
+          `"${cleanIsbn}"`,
+          `"${cleanType}"`,
+          `"${cleanCollectibility}"`,
+          `"${cleanPublisher}"`,
+          `"${cleanYear}"`,
+          `"${cleanBookshelves}"`,
+          `"${cleanAnthology}"`,
+          `"${cleanImported}"`,
+          `"${cleanEdition}"`,
+          `"${cleanPrinting}"`,
+          `"${cleanSigned}"`,
+          `"${cleanLibraryStatus}"`,
+          `"${cleanPrice}"`,
+          `"${cleanDate}"`
+        ];
+        csvRows.push(row.join(","));
+      });
+
+      try {
+        const csvString = csvRows.join("\n");
+        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        const fileTimestamp = new Date().toISOString().split('T')[0];
+        link.setAttribute("href", url);
+        link.setAttribute("download", `book_vault_export_${fileTimestamp}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        triggerToast(`Successfully exported ${processed.length} volumes to CSV!`, "success");
+      } catch (err) {
+        console.error("CSV Export Action error:", err);
+        triggerToast("Failed to initiate CSV download.", "error");
+      }
+    }
+
+    // Delete book volume
+    function deleteBookItem(bookId, title) {
+      books = books.filter(b => b.id !== bookId);
       syncBooksState();
-      triggerToast(`"${title}" logged into archive.`);
-
-      // Reset Form fields
-      document.getElementById('addBookForm').reset();
-      setFormBinding('hardcover');
-      setFormCollectibility('not-rare');
-      setFormAnthology('no');
-      setFormImportStatus('manual');
-      setFormEdition('not-first');
-      setFormSigned('not-signed');
-      setFormLibraryStatus('not-ex-library');
-
+      triggerToast(`"${title}" removed from catalog indexes.`, "info");
+      
+      closeBookModal();
       renderBooks();
     }
 
-    // Handle Edit Form Submission
-    function handleEditFormSubmit(e) {
-      e.preventDefault();
-      const bookId = document.getElementById('editBookId').value;
-      const book = books.find(b => b.id === bookId);
-      if (!book) return;
+    function handleFilterChange() {
+      renderBooks();
+    }
 
-      const title = document.getElementById('editFormTitle').value.trim();
-      const authorFirst = document.getElementById('editFormAuthorFirst').value.trim();
-      const authorLast = document.getElementById('editFormAuthorLast').value.trim();
-      
-      const genre = document.getElementById('editFormGenre').value;
-      const printingRaw = document.getElementById('editFormPrinting').value;
-      const printing = printingRaw !== "" ? parseInt(printingRaw, 10) : 1;
-      const priceRaw = document.getElementById('editFormPricePaid').value;
-      const pricePaid = priceRaw !== "" ? parseFloat(priceRaw) : 0.00;
-      const isbn = document.getElementById('editFormIsbn').value.trim();
-      
-      const publisher = document.getElementById('editFormPublisher').value.trim();
-      const yearRaw = document.getElementById('editFormYearPublished').value;
-      const yearPublished = yearRaw !== "" ? parseInt(yearRaw, 10) : "";
-      const bookshelves = document.getElementById('editFormBookshelves').value.trim();
-
-      if (!title || !authorFirst || !authorLast) {
-        triggerToast("Please provide Book Title and Author names.", "warning");
-        return;
-      }
-
-      book.title = title;
-      book.authorFirst = authorFirst;
-      book.authorLast = authorLast;
-      book.genre = genre;
-      book.isbn = isbn;
-      book.type = editSelectedBinding;
-      book.collectibility = editSelectedCollectibility;
-      book.anthology = editSelectedAnthology;
-      book.importStatus = editSelectedImportStatus;
-      book.edition = editSelectedEdition;
-      book.printing = printing;
-      book.signed = editSelectedSigned;
-      book.libraryStatus = editSelectedLibraryStatus;
-      book.pricePaid = pricePaid;
-      
-      book.publisher = publisher;
-      book.yearPublished = yearPublished;
-      book.bookshelves = bookshelves;
-
-      syncBooksState();
-      triggerToast(`Changes to "${title}" successfully updated!`, "success");
-
-      closeEditModal();
+    function clearSearchFilters() {
+      document.getElementById('searchQuery').value = '';
+      document.getElementById('filterType').value = 'All';
+      document.getElementById('filterCollectibility').value = 'All';
+      document.getElementById('filterAnthology').value = 'All';
+      document.getElementById('filterImportStatus').value = 'All';
+      document.getElementById('filterGenre').value = 'All';
+      document.getElementById('filterEdition').value = 'All';
+      document.getElementById('filterSigned').value = 'All';
+      document.getElementById('filterLibraryStatus').value = 'All';
       renderBooks();
     }
 
